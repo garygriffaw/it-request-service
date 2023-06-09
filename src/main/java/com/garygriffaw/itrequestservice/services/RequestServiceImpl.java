@@ -6,10 +6,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 public class RequestServiceImpl implements RequestService {
@@ -53,5 +50,10 @@ public class RequestServiceImpl implements RequestService {
     @Override
     public Page<RequestDTO> listRequests(Integer pageNumber, Integer pageSize) {
         return new PageImpl<>(new ArrayList<>(requestMap.values()));
+    }
+
+    @Override
+    public Optional<RequestDTO> getRequestById(UUID requestId) {
+        return Optional.of(requestMap.get(requestId));
     }
 }
