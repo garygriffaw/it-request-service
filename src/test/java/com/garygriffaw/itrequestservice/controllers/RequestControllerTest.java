@@ -1,0 +1,47 @@
+package com.garygriffaw.itrequestservice.controllers;
+
+import com.garygriffaw.itrequestservice.services.RequestService;
+import com.garygriffaw.itrequestservice.services.RequestServiceImpl;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.MediaType;
+import org.springframework.test.web.servlet.MockMvc;
+
+import static org.hamcrest.core.Is.is;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+
+
+@WebMvcTest(RequestController.class)
+class RequestControllerTest {
+
+    @Autowired
+    MockMvc mockMvc;
+
+    @MockBean
+    RequestService requestService;
+
+    RequestServiceImpl requestServiceImpl;
+
+    @BeforeEach
+    void setUp() {
+        requestServiceImpl = new RequestServiceImpl();
+    }
+
+    @Test
+    void testListRequests() throws Exception {
+        given(requestService.listRequests(any(), any()))
+                .willReturn(requestServiceImpl.listRequests(1, 25));
+
+        mockMvc.perform(get(RequestController.REQUEST_PATH)
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.content.length()", is(3)));
+    }
+}
