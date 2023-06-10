@@ -24,24 +24,18 @@ public class BootstrapData implements CommandLineRunner {
 
     private void loadRequestData() {
         Request request1 = Request.builder()
-                .id(UUID.randomUUID())
-                .version(1)
                 .title("Request 1")
                 .description("This is the description for request 1.")
                 .build();
         requestRepository.save(request1);
 
         Request request2 = Request.builder()
-                .id(UUID.randomUUID())
-                .version(1)
                 .title("Request 2")
                 .description("This is the description for request 2.")
                 .build();
         requestRepository.save(request2);
 
         Request request3 = Request.builder()
-                .id(UUID.randomUUID())
-                .version(1)
                 .title("Request 3")
                 .description("This is the description for request 3.")
                 .build();
