@@ -42,6 +42,11 @@ public class RequestServiceJPA implements RequestService {
                 .orElse(null)));
     }
 
+    @Override
+    public RequestDTO saveNewRequest(RequestDTO requestDTO) {
+        return requestMapper.requestToRequestDTO(requestRepository.save(requestMapper.requestDTOToRequest(requestDTO)));
+    }
+
 
     private PageRequest buildPageRequest(Integer pageNumber, Integer pageSize) {
         int queryPageNumber = getPageNumber(pageNumber);

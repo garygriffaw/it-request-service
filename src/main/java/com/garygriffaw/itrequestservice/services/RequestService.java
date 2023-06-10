@@ -11,4 +11,6 @@ public interface RequestService {
     Page<RequestDTO> listRequests(Integer pageNumber, Integer pageSize);
 
     Optional<RequestDTO> getRequestById(UUID requestId);
+
+    RequestDTO saveNewRequest(RequestDTO requestDTO);
 }

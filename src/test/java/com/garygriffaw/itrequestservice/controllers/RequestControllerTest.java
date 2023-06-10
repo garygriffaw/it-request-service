@@ -1,5 +1,6 @@
 package com.garygriffaw.itrequestservice.controllers;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.garygriffaw.itrequestservice.model.RequestDTO;
 import com.garygriffaw.itrequestservice.services.RequestService;
 import com.garygriffaw.itrequestservice.services.RequestServiceImpl;
@@ -26,6 +27,9 @@ class RequestControllerTest {
 
     @Autowired
     MockMvc mockMvc;
+
+    @Autowired
+    ObjectMapper objectMapper;
 
     @MockBean
     RequestService requestService;
@@ -71,5 +75,22 @@ class RequestControllerTest {
 
         mockMvc.perform(get(RequestController.REQUEST_PATH_ID, UUID.randomUUID()))
                 .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void testCreateNewRequest() throws Exception {
+        RequestDTO newRequest = requestServiceImpl.listRequests(1, 25).getContent().get(0);
+        newRequest.setId(null);
+        newRequest.setVersion(null);
+
+        given(requestService.saveNewRequest(any(RequestDTO.class)))
+                .willReturn(requestServiceImpl.listRequests(1, 25).getContent().get(1));
+
+        mockMvc.perform(post(RequestController.REQUEST_PATH)
+                    .accept(MediaType.APPLICATION_JSON)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(newRequest)))
+                .andExpect(status().isCreated())
+                .andExpect(header().exists("Location"));
     }
 }
