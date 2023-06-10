@@ -28,8 +28,6 @@ public class BootstrapData implements CommandLineRunner {
                 .version(1)
                 .title("Request 1")
                 .description("This is the description for request 1.")
-                .createdDate(LocalDateTime.now())
-                .updateDate(LocalDateTime.now())
                 .build();
         requestRepository.save(request1);
 
@@ -38,8 +36,6 @@ public class BootstrapData implements CommandLineRunner {
                 .version(1)
                 .title("Request 2")
                 .description("This is the description for request 2.")
-                .createdDate(LocalDateTime.now())
-                .updateDate(LocalDateTime.now())
                 .build();
         requestRepository.save(request2);
 
@@ -48,8 +44,6 @@ public class BootstrapData implements CommandLineRunner {
                 .version(1)
                 .title("Request 3")
                 .description("This is the description for request 3.")
-                .createdDate(LocalDateTime.now())
-                .updateDate(LocalDateTime.now())
                 .build();
         requestRepository.save(request3);
     }
