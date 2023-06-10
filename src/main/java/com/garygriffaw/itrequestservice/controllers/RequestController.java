@@ -16,7 +16,7 @@ import java.util.UUID;
 @RestController
 public class RequestController {
 
-    public static final String REQUEST_PATH ="/api/v1/request";
+    public static final String REQUEST_PATH ="/api/v1/requests";
     public static final String REQUEST_PATH_ID = REQUEST_PATH + "/{requestId}";
 
     private final RequestService requestService;
