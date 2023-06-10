@@ -1,5 +1,6 @@
 package com.garygriffaw.itrequestservice.controllers;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.garygriffaw.itrequestservice.model.RequestDTO;
 import com.garygriffaw.itrequestservice.services.RequestService;
@@ -18,6 +19,7 @@ import java.util.UUID;
 import static org.hamcrest.core.Is.is;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.verify;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -92,5 +94,35 @@ class RequestControllerTest {
                     .content(objectMapper.writeValueAsString(newRequest)))
                 .andExpect(status().isCreated())
                 .andExpect(header().exists("Location"));
+    }
+
+    @Test
+    void testUpdateRequest() throws Exception {
+        RequestDTO request = requestServiceImpl.listRequests(1, 25).getContent().get(0);
+
+        given(requestService.updateRequestById(any(), any(RequestDTO.class)))
+                .willReturn(Optional.of(request));
+
+        mockMvc.perform(put(RequestController.REQUEST_PATH_ID, request.getId())
+                        .accept(MediaType.APPLICATION_JSON)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isNoContent());
+
+        verify(requestService).updateRequestById(any(UUID.class), any(RequestDTO.class));
+    }
+
+    @Test
+    void testUpdateRequestNotFound() throws Exception {
+        RequestDTO request = requestServiceImpl.listRequests(1, 25).getContent().get(0);
+
+        given(requestService.updateRequestById(any(), any(RequestDTO.class)))
+                .willReturn(Optional.empty());
+
+        mockMvc.perform(put(RequestController.REQUEST_PATH_ID, request.getId())
+                        .accept(MediaType.APPLICATION_JSON)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isNotFound());
     }
 }

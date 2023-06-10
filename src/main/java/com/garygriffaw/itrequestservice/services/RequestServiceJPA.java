@@ -12,6 +12,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.concurrent.atomic.AtomicReference;
 
 @Service
 @Primary
@@ -45,6 +46,22 @@ public class RequestServiceJPA implements RequestService {
     @Override
     public RequestDTO saveNewRequest(RequestDTO requestDTO) {
         return requestMapper.requestToRequestDTO(requestRepository.save(requestMapper.requestDTOToRequest(requestDTO)));
+    }
+
+    @Override
+    public Optional<RequestDTO> updateRequestById(UUID requestId, RequestDTO requestDTO) {
+        AtomicReference<Optional<RequestDTO>> atomicReference =new AtomicReference<>();
+
+        requestRepository.findById(requestId).ifPresentOrElse(foundRequest -> {
+            foundRequest.setTitle(requestDTO.getTitle());
+            foundRequest.setDescription(requestDTO.getDescription());
+            foundRequest.setResolution(requestDTO.getResolution());
+            atomicReference.set(Optional.of(requestMapper.requestToRequestDTO(requestRepository.save(foundRequest))));
+        }, () -> {
+            atomicReference.set(Optional.empty());
+        });
+
+        return atomicReference.get();
     }
 
 

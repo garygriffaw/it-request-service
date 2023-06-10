@@ -69,4 +69,14 @@ public class RequestServiceImpl implements RequestService {
 
         return savedRequest;
     }
+
+    @Override
+    public Optional<RequestDTO> updateRequestById(UUID requestId, RequestDTO requestDTO) {
+        RequestDTO existing = requestMap.get(requestId);
+        existing.setTitle(requestDTO.getTitle());
+        existing.setDescription(requestDTO.getDescription());
+        existing.setResolution(requestDTO.getResolution());
+
+        return Optional.of(existing);
+    }
 }

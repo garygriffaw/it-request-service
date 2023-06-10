@@ -41,4 +41,13 @@ public class RequestController {
 
         return new ResponseEntity(headers, HttpStatus.CREATED);
     }
+
+    @PutMapping(REQUEST_PATH_ID)
+    public ResponseEntity updateRequestById(@PathVariable("requestId")UUID requestId, @Validated @RequestBody RequestDTO requestDTO) {
+        if (requestService.updateRequestById(requestId, requestDTO).isEmpty()) {
+            throw new NotFoundException();
+        }
+
+        return new ResponseEntity(HttpStatus.NO_CONTENT);
+    }
 }
