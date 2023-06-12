@@ -10,9 +10,12 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.time.Instant;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -20,6 +23,7 @@ import static org.hamcrest.core.Is.is;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -38,6 +42,16 @@ class RequestControllerTest {
 
     RequestServiceImpl requestServiceImpl;
 
+    public static final SecurityMockMvcRequestPostProcessors.JwtRequestPostProcessor jwtRequestPostProcessor =
+            jwt().jwt(jwt -> {
+                jwt.claims(claims -> {
+                            claims.put("scope", "message-read");
+                            claims.put("scope", "message-write");
+                        })
+                        .subject("messaging-client")
+                        .notBefore(Instant.now().minusSeconds(5l));
+            });
+
     @BeforeEach
     void setUp() {
         requestServiceImpl = new RequestServiceImpl();
@@ -49,7 +63,8 @@ class RequestControllerTest {
                 .willReturn(requestServiceImpl.listRequests(1, 25));
 
         mockMvc.perform(get(RequestController.REQUEST_PATH)
-                .accept(MediaType.APPLICATION_JSON))
+                    .with(jwtRequestPostProcessor)
+                    .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.content.length()", is(3)));
@@ -63,6 +78,7 @@ class RequestControllerTest {
                 .willReturn(Optional.of(testRequest));
 
         mockMvc.perform(get(RequestController.REQUEST_PATH_ID, testRequest.getId())
+                        .with(jwtRequestPostProcessor)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
@@ -75,7 +91,8 @@ class RequestControllerTest {
         given(requestService.getRequestById(any(UUID.class)))
                 .willReturn(Optional.empty());
 
-        mockMvc.perform(get(RequestController.REQUEST_PATH_ID, UUID.randomUUID()))
+        mockMvc.perform(get(RequestController.REQUEST_PATH_ID, UUID.randomUUID())
+                    .with(jwtRequestPostProcessor))
                 .andExpect(status().isNotFound());
     }
 
@@ -89,6 +106,7 @@ class RequestControllerTest {
                 .willReturn(requestServiceImpl.listRequests(1, 25).getContent().get(1));
 
         mockMvc.perform(post(RequestController.REQUEST_PATH)
+                    .with(jwtRequestPostProcessor)
                     .accept(MediaType.APPLICATION_JSON)
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(objectMapper.writeValueAsString(newRequest)))
@@ -104,6 +122,7 @@ class RequestControllerTest {
                 .willReturn(Optional.of(request));
 
         mockMvc.perform(put(RequestController.REQUEST_PATH_ID, request.getId())
+                        .with(jwtRequestPostProcessor)
                         .accept(MediaType.APPLICATION_JSON)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
@@ -120,6 +139,7 @@ class RequestControllerTest {
                 .willReturn(Optional.empty());
 
         mockMvc.perform(put(RequestController.REQUEST_PATH_ID, request.getId())
+                        .with(jwtRequestPostProcessor)
                         .accept(MediaType.APPLICATION_JSON)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
