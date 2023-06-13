@@ -1,7 +1,8 @@
 package com.garygriffaw.itrequestservice.controllers;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.garygriffaw.itrequestservice.config.JwtService;
+import com.garygriffaw.itrequestservice.config.SecurityConfiguration;
 import com.garygriffaw.itrequestservice.model.RequestDTO;
 import com.garygriffaw.itrequestservice.services.RequestService;
 import com.garygriffaw.itrequestservice.services.RequestServiceImpl;
@@ -12,6 +13,8 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
+import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -29,6 +32,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 
 @WebMvcTest(RequestController.class)
+@Import(SecurityConfiguration.class)
 class RequestControllerTest {
 
     @Autowired
@@ -39,6 +43,15 @@ class RequestControllerTest {
 
     @MockBean
     RequestService requestService;
+
+    @MockBean
+    JwtService jwtService;
+
+    @MockBean
+    AuthenticationProvider authenticationProvider;
+
+    @MockBean
+    JwtDecoder jwtDecoder;
 
     RequestServiceImpl requestServiceImpl;
 
