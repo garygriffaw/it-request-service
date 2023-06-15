@@ -1,5 +1,6 @@
-package com.garygriffaw.itrequestservice.user;
+package com.garygriffaw.itrequestservice.repositories;
 
+import com.garygriffaw.itrequestservice.entities.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;

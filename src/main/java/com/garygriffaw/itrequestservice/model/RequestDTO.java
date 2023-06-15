@@ -28,6 +28,8 @@ public class RequestDTO {
     @Column(length = 500)
     private String description;
 
+    private UserDTO requester;
+
     private String resolution;
 
     private LocalDateTime createdDate;

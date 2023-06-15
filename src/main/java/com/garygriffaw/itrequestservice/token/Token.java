@@ -1,6 +1,6 @@
 package com.garygriffaw.itrequestservice.token;
 
-import com.garygriffaw.itrequestservice.user.User;
+import com.garygriffaw.itrequestservice.entities.User;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

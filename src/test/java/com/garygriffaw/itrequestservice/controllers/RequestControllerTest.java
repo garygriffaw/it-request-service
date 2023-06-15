@@ -6,6 +6,7 @@ import com.garygriffaw.itrequestservice.config.SecurityConfiguration;
 import com.garygriffaw.itrequestservice.model.RequestDTO;
 import com.garygriffaw.itrequestservice.services.RequestService;
 import com.garygriffaw.itrequestservice.services.RequestServiceImpl;
+import com.garygriffaw.itrequestservice.token.TokenRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +17,7 @@ import org.springframework.http.MediaType;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
+import org.springframework.security.web.authentication.logout.LogoutHandler;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.Instant;
@@ -52,6 +54,12 @@ class RequestControllerTest {
 
     @MockBean
     JwtDecoder jwtDecoder;
+
+    @MockBean
+    TokenRepository tokenRepository;
+
+    @MockBean
+    LogoutHandler logoutHandler;
 
     RequestServiceImpl requestServiceImpl;
 

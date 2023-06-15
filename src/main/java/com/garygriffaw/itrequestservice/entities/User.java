@@ -1,4 +1,4 @@
-package com.garygriffaw.itrequestservice.user;
+package com.garygriffaw.itrequestservice.entities;
 
 import com.garygriffaw.itrequestservice.token.Token;
 import jakarta.persistence.*;
@@ -31,6 +31,9 @@ public class User implements UserDetails {
 
     @OneToMany(mappedBy = "user")
     private List<Token> tokens;
+
+    @OneToMany(mappedBy = "requester")
+    private List<Request> requests;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

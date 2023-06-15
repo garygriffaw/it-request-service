@@ -43,6 +43,10 @@ public class Request {
     @Column(length = 500)
     private String description;
 
+    @ManyToOne
+    @JoinColumn(name = "requester_user_id", nullable = false)
+    private User requester;
+
     private String resolution;
 
     @CreationTimestamp
