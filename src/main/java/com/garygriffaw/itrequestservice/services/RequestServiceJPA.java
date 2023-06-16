@@ -1,9 +1,13 @@
 package com.garygriffaw.itrequestservice.services;
 
+import com.garygriffaw.itrequestservice.config.JwtService;
 import com.garygriffaw.itrequestservice.entities.Request;
 import com.garygriffaw.itrequestservice.mappers.RequestMapper;
+import com.garygriffaw.itrequestservice.mappers.UserMapper;
 import com.garygriffaw.itrequestservice.model.RequestDTO;
+import com.garygriffaw.itrequestservice.model.UserDTO;
 import com.garygriffaw.itrequestservice.repositories.RequestRepository;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Primary;
 import org.springframework.data.domain.Page;
@@ -20,6 +24,9 @@ import java.util.concurrent.atomic.AtomicReference;
 public class RequestServiceJPA implements RequestService {
     private final RequestRepository requestRepository;
     private final RequestMapper requestMapper;
+    private final UserService userService;
+    private final UserMapper userMapper;
+    private final JwtService jwtService;
 
     private static final int DEFAULT_PAGE = 0;
     private static final int DEFAULT_PAGE_SIZE = 25;
@@ -44,7 +51,9 @@ public class RequestServiceJPA implements RequestService {
     }
 
     @Override
-    public RequestDTO saveNewRequest(RequestDTO requestDTO) {
+    public RequestDTO saveNewRequest(RequestDTO requestDTO, HttpServletRequest httpRequest) {
+        requestDTO.setRequester(getCurrentUserDTO(httpRequest).get());
+
         return requestMapper.requestToRequestDTO(requestRepository.save(requestMapper.requestDTOToRequest(requestDTO)));
     }
 
@@ -89,5 +98,20 @@ public class RequestServiceJPA implements RequestService {
             return MAX_PAGE_SIZE;
 
         return pageSize;
+    }
+
+    private Optional<UserDTO> getCurrentUserDTO(HttpServletRequest httpRequest) {
+        final String authHeader = httpRequest.getHeader("Authorization");
+        final String jwt;
+        final String username;
+
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            return Optional.empty();
+        }
+
+        jwt = authHeader.substring(7);
+
+        return Optional.ofNullable(userService.getUserByUserName(jwtService.extractUsername(jwt)))
+                .orElse(null);
     }
 }

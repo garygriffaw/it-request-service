@@ -123,7 +123,7 @@ class RequestControllerTest {
         newRequest.setId(null);
         newRequest.setVersion(null);
 
-        given(requestService.saveNewRequest(any(RequestDTO.class)))
+        given(requestService.saveNewRequest(any(RequestDTO.class), any()))
                 .willReturn(requestServiceImpl.listRequests(1, 25).getContent().get(1));
 
         mockMvc.perform(post(RequestController.REQUEST_PATH)

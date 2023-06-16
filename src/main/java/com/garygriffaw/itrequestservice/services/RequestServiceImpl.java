@@ -1,6 +1,7 @@
 package com.garygriffaw.itrequestservice.services;
 
 import com.garygriffaw.itrequestservice.model.RequestDTO;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.stereotype.Service;
@@ -58,7 +59,7 @@ public class RequestServiceImpl implements RequestService {
     }
 
     @Override
-    public RequestDTO saveNewRequest(RequestDTO requestDTO) {
+    public RequestDTO saveNewRequest(RequestDTO requestDTO, HttpServletRequest httpRequest) {
         RequestDTO savedRequest = RequestDTO.builder()
                 .id(UUID.randomUUID())
                 .title(requestDTO.getTitle())

@@ -2,6 +2,7 @@ package com.garygriffaw.itrequestservice.controllers;
 
 import com.garygriffaw.itrequestservice.model.RequestDTO;
 import com.garygriffaw.itrequestservice.services.RequestService;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpHeaders;
@@ -33,8 +34,8 @@ public class RequestController {
     }
 
     @PostMapping(REQUEST_PATH)
-    public ResponseEntity saveNewRequest(@Validated @RequestBody RequestDTO requestDTO) {
-        RequestDTO savedRequest = requestService.saveNewRequest(requestDTO);
+    public ResponseEntity saveNewRequest(@Validated @RequestBody RequestDTO requestDTO, HttpServletRequest httpRequest) {
+        RequestDTO savedRequest = requestService.saveNewRequest(requestDTO, httpRequest);
 
         HttpHeaders headers = new HttpHeaders();
         headers.add("Location", REQUEST_PATH + "/" + savedRequest.getId().toString());
