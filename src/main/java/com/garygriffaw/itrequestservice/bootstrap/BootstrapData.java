@@ -1,21 +1,22 @@
 package com.garygriffaw.itrequestservice.bootstrap;
 
 import com.garygriffaw.itrequestservice.entities.Request;
+import com.garygriffaw.itrequestservice.entities.Role;
 import com.garygriffaw.itrequestservice.entities.User;
+import com.garygriffaw.itrequestservice.enums.RoleEnum;
 import com.garygriffaw.itrequestservice.repositories.RequestRepository;
+import com.garygriffaw.itrequestservice.repositories.RoleRepository;
 import com.garygriffaw.itrequestservice.repositories.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
-import java.util.UUID;
-
 @Component
 @RequiredArgsConstructor
 public class BootstrapData implements CommandLineRunner {
 
+    private final RoleRepository roleRepository;
     private final RequestRepository requestRepository;
     private final UserRepository userRepository;
 
@@ -25,17 +26,33 @@ public class BootstrapData implements CommandLineRunner {
     @Transactional
     @Override
     public void run(String... args) throws Exception {
+        loadRoleData();
         loadUserData();
         loadRequestData();
     }
 
+    private void loadRoleData() {
+        Role userRole = Role.builder()
+                .role(RoleEnum.USER)
+                .build();
+        roleRepository.save(userRole);
+
+        Role adminRole = Role.builder()
+                .role(RoleEnum.ADMIN)
+                .build();
+        roleRepository.save(adminRole);
+    }
+
     private void loadUserData() {
+        Role userRole = roleRepository.findByRole(RoleEnum.USER).get();
+
         User user1 = User.builder()
                 .username(TEST_USER_1)
                 .firstname("Test 1")
                 .lastname("Smith")
                 .email("test1@mail.abc")
                 .build();
+        user1.addRole(userRole);
         userRepository.save(user1);
 
         User user2 = User.builder()
@@ -44,6 +61,7 @@ public class BootstrapData implements CommandLineRunner {
                 .lastname("Jones")
                 .email("test2@mail.abc")
                 .build();
+        user2.addRole(userRole);
         userRepository.save(user2);
     }
 
