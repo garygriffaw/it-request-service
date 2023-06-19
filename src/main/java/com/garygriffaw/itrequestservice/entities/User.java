@@ -10,7 +10,9 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Data
 @Builder
@@ -32,8 +34,9 @@ public class User implements UserDetails {
     @OneToMany(mappedBy = "user")
     private List<Token> tokens;
 
+    @Builder.Default
     @OneToMany(mappedBy = "requester")
-    private List<Request> requests;
+    private Set<Request> requests = new HashSet<>();
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

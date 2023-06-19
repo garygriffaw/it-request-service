@@ -18,9 +18,20 @@ import java.util.UUID;
 @Setter
 @Builder
 @Entity
-@AllArgsConstructor
 @NoArgsConstructor
 public class Request {
+
+    public Request(UUID id, Integer version, @NotNull String title, @NotNull String description, User requester, String resolution, LocalDateTime createdDate, LocalDateTime updateDate) {
+        this.id = id;
+        this.version = version;
+        this.title = title;
+        this.description = description;
+        this.setRequester(requester);
+        this.resolution = resolution;
+        this.createdDate = createdDate;
+        this.updateDate = updateDate;
+    }
+
     @Id
     @GeneratedValue(generator = "UUID")
     @GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
@@ -54,4 +65,9 @@ public class Request {
 
     @UpdateTimestamp
     private LocalDateTime updateDate;
+
+    public void setRequester(User requester) {
+        this.requester = requester;
+        requester.getRequests().add(this);
+    }
 }
