@@ -1,6 +1,10 @@
 package com.garygriffaw.itrequestservice.auth;
 
 import com.garygriffaw.itrequestservice.config.JwtService;
+import com.garygriffaw.itrequestservice.entities.Role;
+import com.garygriffaw.itrequestservice.enums.RoleEnum;
+import com.garygriffaw.itrequestservice.repositories.RoleRepository;
+import com.garygriffaw.itrequestservice.services.UserDetailsServiceImpl;
 import com.garygriffaw.itrequestservice.token.Token;
 import com.garygriffaw.itrequestservice.token.TokenRepository;
 import com.garygriffaw.itrequestservice.token.TokenType;
@@ -16,10 +20,12 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class AuthenticationService {
     private final UserRepository userRepository;
+    private final RoleRepository roleRepository;
     private final TokenRepository tokenRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
+    private final UserDetailsServiceImpl userDetailsService;
 
     public AuthenticationResponse register(RegisterRequest request) {
         User user = User.builder()
@@ -29,6 +35,9 @@ public class AuthenticationService {
                 .email(request.getEmail())
                 .password(passwordEncoder.encode(request.getPassword()))
                 .build();
+
+        Role userRole = roleRepository.findByRole(RoleEnum.USER).get();
+        user.addRole(userRole);
 
         User savedUser = userRepository.save(user);
 
@@ -47,7 +56,7 @@ public class AuthenticationService {
     private AuthenticationResponse getAuthenticationResponse(User user) {
         revokeAllValidUserTokens(user);
 
-        String jwtToken = jwtService.generateToken(user);
+        String jwtToken = jwtService.generateToken(userDetailsService.getUserDetailsUser(user));
         saveUserToken(user, jwtToken);
 
         return AuthenticationResponse.builder()
