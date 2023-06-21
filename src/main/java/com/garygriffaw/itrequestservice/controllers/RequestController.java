@@ -35,9 +35,9 @@ public class RequestController {
         return requestService.listRequests(pageNumber, pageSize);
     }
 
-    @GetMapping(REQUEST_PATH + "/requester")
+    @GetMapping(REQUEST_PATH + "/myrequests")
     @PreAuthorize("hasRole('USER')")
-    public Page<RequestDTO> listRequestsByRequester(@RequestParam(required = false) Integer pageNumber,
+    public Page<RequestDTO> listMyRequests(@RequestParam(required = false) Integer pageNumber,
                                          @RequestParam(required = false) Integer pageSize, Authentication authentication) {
         Optional<UserDTO> requesterDTO = userService.getUserByUserName(authentication.getName());
 
