@@ -2,6 +2,7 @@ package com.garygriffaw.itrequestservice.services;
 
 import com.garygriffaw.itrequestservice.config.JwtService;
 import com.garygriffaw.itrequestservice.entities.Request;
+import com.garygriffaw.itrequestservice.entities.User;
 import com.garygriffaw.itrequestservice.mappers.RequestMapper;
 import com.garygriffaw.itrequestservice.mappers.UserMapper;
 import com.garygriffaw.itrequestservice.model.RequestDTO;
@@ -35,11 +36,24 @@ public class RequestServiceJPA implements RequestService {
 
     @Override
     public Page<RequestDTO> listRequests(Integer pageNumber, Integer pageSize) {
-        PageRequest pageRequest= buildPageRequest(pageNumber, pageSize);
+        PageRequest pageRequest = buildPageRequest(pageNumber, pageSize);
 
         Page<Request> requestPage;
 
         requestPage = requestRepository.findAll(pageRequest);
+
+        return requestPage.map(requestMapper::requestToRequestDTO);
+    }
+
+    @Override
+    public Page<RequestDTO> listRequestsByRequester(UserDTO requesterDTO, Integer pageNumber, Integer pageSize) {
+        PageRequest pageRequest = buildPageRequest(pageNumber, pageSize);
+
+        Page<Request> requestPage;
+
+        User requester = userMapper.userDTOToUser(requesterDTO);
+
+        requestPage = requestRepository.findAllByRequester(requester, pageRequest);
 
         return requestPage.map(requestMapper::requestToRequestDTO);
     }

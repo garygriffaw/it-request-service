@@ -1,6 +1,7 @@
 package com.garygriffaw.itrequestservice.services;
 
 import com.garygriffaw.itrequestservice.model.RequestDTO;
+import com.garygriffaw.itrequestservice.model.UserDTO;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -50,6 +51,11 @@ public class RequestServiceImpl implements RequestService {
 
     @Override
     public Page<RequestDTO> listRequests(Integer pageNumber, Integer pageSize) {
+        return new PageImpl<>(new ArrayList<>(requestMap.values()));
+    }
+
+    @Override
+    public Page<RequestDTO> listRequestsByRequester(UserDTO requester, Integer pageNumber, Integer pageSize) {
         return new PageImpl<>(new ArrayList<>(requestMap.values()));
     }
 
