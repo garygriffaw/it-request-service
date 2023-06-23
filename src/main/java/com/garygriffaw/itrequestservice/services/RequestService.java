@@ -1,22 +1,22 @@
 package com.garygriffaw.itrequestservice.services;
 
 import com.garygriffaw.itrequestservice.model.RequestDTO;
-import com.garygriffaw.itrequestservice.model.UserDTO;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.data.domain.Page;
 
 import java.util.Optional;
-import java.util.UUID;
 
 public interface RequestService {
 
     Page<RequestDTO> listRequests(Integer pageNumber, Integer pageSize);
 
-    Page<RequestDTO> listRequestsByRequester(UserDTO requester, Integer pageNumber, Integer pageSize);
+    Page<RequestDTO> listRequestsByRequester(String requesterUsername, Integer pageNumber, Integer pageSize);
 
-    Optional<RequestDTO> getRequestById(UUID requestId);
+    Optional<RequestDTO> getRequestById(Integer requestId);
+
+    Optional<RequestDTO> getRequestByIdAndRequester(Integer requestId, String requesterUsername);
 
     RequestDTO saveNewRequest(RequestDTO requestDTO, HttpServletRequest httpRequest);
 
-    Optional<RequestDTO> updateRequestById(UUID requestId, RequestDTO requestDTO);
+    Optional<RequestDTO> updateRequestById(Integer requestId, RequestDTO requestDTO);
 }

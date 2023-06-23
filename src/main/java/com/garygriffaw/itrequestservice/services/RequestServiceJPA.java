@@ -46,21 +46,40 @@ public class RequestServiceJPA implements RequestService {
     }
 
     @Override
-    public Page<RequestDTO> listRequestsByRequester(UserDTO requesterDTO, Integer pageNumber, Integer pageSize) {
+    public Page<RequestDTO> listRequestsByRequester(String requesterUsername, Integer pageNumber, Integer pageSize) {
         PageRequest pageRequest = buildPageRequest(pageNumber, pageSize);
 
         Page<Request> requestPage;
 
-        User requester = userMapper.userDTOToUser(requesterDTO);
+        Optional<UserDTO> requesterDTO = userService.getUserByUserName(requesterUsername);
 
+        if (requesterDTO.isEmpty()) {
+            return Page.empty();
+        }
+
+        User requester = userMapper.userDTOToUser(requesterDTO.get());
         requestPage = requestRepository.findAllByRequester(requester, pageRequest);
 
         return requestPage.map(requestMapper::requestToRequestDTO);
     }
 
     @Override
-    public Optional<RequestDTO> getRequestById(UUID requestId) {
+    public Optional<RequestDTO> getRequestById(Integer requestId) {
         return Optional.ofNullable(requestMapper.requestToRequestDTO(requestRepository.findById(requestId)
+                .orElse(null)));
+    }
+
+    @Override
+    public Optional<RequestDTO> getRequestByIdAndRequester(Integer requestId, String requesterUsername) {
+        Optional<UserDTO> requesterDTO = userService.getUserByUserName(requesterUsername);
+
+        if (requesterDTO.isEmpty()) {
+            return Optional.empty();
+        }
+
+        User requester = userMapper.userDTOToUser(requesterDTO.get());
+
+        return Optional.ofNullable(requestMapper.requestToRequestDTO(requestRepository.findByIdAndRequester(requestId, requester)
                 .orElse(null)));
     }
 
@@ -72,7 +91,7 @@ public class RequestServiceJPA implements RequestService {
     }
 
     @Override
-    public Optional<RequestDTO> updateRequestById(UUID requestId, RequestDTO requestDTO) {
+    public Optional<RequestDTO> updateRequestById(Integer requestId, RequestDTO requestDTO) {
         AtomicReference<Optional<RequestDTO>> atomicReference =new AtomicReference<>();
 
         requestRepository.findById(requestId).ifPresentOrElse(foundRequest -> {

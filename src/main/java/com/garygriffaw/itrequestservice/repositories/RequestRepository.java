@@ -6,9 +6,11 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import java.util.UUID;
+import java.util.Optional;
 
-public interface RequestRepository extends JpaRepository<Request, UUID> {
+public interface RequestRepository extends JpaRepository<Request, Integer> {
 
     Page<Request> findAllByRequester(User requester, Pageable pageable);
+
+    Optional<Request> findByIdAndRequester(Integer id, User requester);
 }

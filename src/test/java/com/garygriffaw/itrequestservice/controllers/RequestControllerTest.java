@@ -29,6 +29,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -79,11 +80,40 @@ class RequestControllerTest {
     }
 
     @Test
+    void testListMyRequests() throws Exception {
+        given(requestService.listRequestsByRequester(any() ,any(), any()))
+                .willReturn(requestServiceImpl.listRequestsByRequester("abc",1, 25));
+
+        mockMvc.perform(get(RequestController.MY_REQUESTS_PATH)
+                        .with(user("abc"))
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.content.length()", is(2)));
+    }
+
+    @Test
+    void testGetMyRequestById() throws Exception {
+        RequestDTO testRequest = requestServiceImpl.listRequests(1, 25).getContent().get(0);
+
+        given(requestService.getRequestByIdAndRequester(testRequest.getId(), "abc"))
+                .willReturn(Optional.of(testRequest));
+
+        mockMvc.perform(get(RequestController.MY_REQUESTS_PATH_ID, testRequest.getId())
+                        .with(user("abc"))
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.id", is(testRequest.getId())))
+                .andExpect(jsonPath("$.title", is(testRequest.getTitle())));
+    }
+
+    @Test
     void testListRequests() throws Exception {
         given(requestService.listRequests(any(), any()))
                 .willReturn(requestServiceImpl.listRequests(1, 25));
 
-        mockMvc.perform(get(RequestController.REQUEST_PATH)
+        mockMvc.perform(get(RequestController.REQUESTS_PATH)
                     .with(jwtRequestPostProcessor)
                     .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -98,21 +128,21 @@ class RequestControllerTest {
         given(requestService.getRequestById(testRequest.getId()))
                 .willReturn(Optional.of(testRequest));
 
-        mockMvc.perform(get(RequestController.REQUEST_PATH_ID, testRequest.getId())
+        mockMvc.perform(get(RequestController.REQUESTS_PATH_ID, testRequest.getId())
                         .with(jwtRequestPostProcessor)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.id", is(testRequest.getId().toString())))
+                .andExpect(jsonPath("$.id", is(testRequest.getId())))
                 .andExpect(jsonPath("$.title", is(testRequest.getTitle())));
     }
 
     @Test
     void testGetRequestByIdNotFound() throws Exception {
-        given(requestService.getRequestById(any(UUID.class)))
+        given(requestService.getRequestById(any(Integer.class)))
                 .willReturn(Optional.empty());
 
-        mockMvc.perform(get(RequestController.REQUEST_PATH_ID, UUID.randomUUID())
+        mockMvc.perform(get(RequestController.REQUESTS_PATH_ID, UUID.randomUUID())
                     .with(jwtRequestPostProcessor))
                 .andExpect(status().isNotFound());
     }
@@ -126,7 +156,7 @@ class RequestControllerTest {
         given(requestService.saveNewRequest(any(RequestDTO.class), any()))
                 .willReturn(requestServiceImpl.listRequests(1, 25).getContent().get(1));
 
-        mockMvc.perform(post(RequestController.REQUEST_PATH)
+        mockMvc.perform(post(RequestController.REQUESTS_PATH)
                     .with(jwtRequestPostProcessor)
                     .accept(MediaType.APPLICATION_JSON)
                     .contentType(MediaType.APPLICATION_JSON)
@@ -142,14 +172,14 @@ class RequestControllerTest {
         given(requestService.updateRequestById(any(), any(RequestDTO.class)))
                 .willReturn(Optional.of(request));
 
-        mockMvc.perform(put(RequestController.REQUEST_PATH_ID, request.getId())
+        mockMvc.perform(put(RequestController.REQUESTS_PATH_ID, request.getId())
                         .with(jwtRequestPostProcessor)
                         .accept(MediaType.APPLICATION_JSON)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isNoContent());
 
-        verify(requestService).updateRequestById(any(UUID.class), any(RequestDTO.class));
+        verify(requestService).updateRequestById(any(Integer.class), any(RequestDTO.class));
     }
 
     @Test
@@ -159,7 +189,7 @@ class RequestControllerTest {
         given(requestService.updateRequestById(any(), any(RequestDTO.class)))
                 .willReturn(Optional.empty());
 
-        mockMvc.perform(put(RequestController.REQUEST_PATH_ID, request.getId())
+        mockMvc.perform(put(RequestController.REQUESTS_PATH_ID, request.getId())
                         .with(jwtRequestPostProcessor)
                         .accept(MediaType.APPLICATION_JSON)
                         .contentType(MediaType.APPLICATION_JSON)
