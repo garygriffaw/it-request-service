@@ -50,6 +50,7 @@ public class RequestController {
     }
 
     @GetMapping(REQUESTS_PATH_ID)
+    @PreAuthorize("hasRole('ADMIN')")
     public RequestDTO getRequestById(@PathVariable("requestId") Integer requestId) {
         return requestService.getRequestById(requestId).orElseThrow(NotFoundException::new);
     }

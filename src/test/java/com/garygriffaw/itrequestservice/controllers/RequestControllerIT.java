@@ -58,4 +58,59 @@ public class RequestControllerIT {
                 .andExpect(jsonPath("$.id", is(testRequest.getId())))
                 .andExpect(jsonPath("$.title", is(testRequest.getTitle())));
     }
+
+    @WithMockUser(username = "test_user_2")
+    @Test
+    void testGetMyRequestByIdNotfound() throws Exception {
+            mockMvc.perform(get(RequestController.MY_REQUESTS_PATH_ID, 9999)
+                            .accept(MediaType.APPLICATION_JSON))
+                    .andExpect(status().isNotFound());
+    }
+
+    @WithMockUser(username = "abc", roles = "ADMIN")
+    @Test
+    void testListRequests() throws Exception {
+        mockMvc.perform(get(RequestController.REQUESTS_PATH)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.content.length()", is(3)));
+    }
+
+    @WithMockUser(username = "abc", roles = "USER")
+    @Test
+    void testListRequestsForbidden() throws Exception {
+        mockMvc.perform(get(RequestController.REQUESTS_PATH)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isForbidden());
+    }
+
+    @WithMockUser(username = "abc", roles = "ADMIN")
+    @Test
+    void testGetRequestById() throws Exception {
+        Request testRequest = requestRepository.findAll().get(1);
+
+        mockMvc.perform(get(RequestController.REQUESTS_PATH_ID, testRequest.getId())
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.id", is(testRequest.getId())))
+                .andExpect(jsonPath("$.title", is(testRequest.getTitle())));
+    }
+
+    @WithMockUser(username = "abc", roles = "ADMIN")
+    @Test
+    void testGetRequestByIdNotfound() throws Exception {
+        mockMvc.perform(get(RequestController.REQUESTS_PATH_ID, 9999)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound());
+    }
+
+    @WithMockUser(username = "abc", roles = "USER")
+    @Test
+    void testGetRequestByIdForbidden() throws Exception {
+        mockMvc.perform(get(RequestController.REQUESTS_PATH_ID, 9999)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isForbidden());
+    }
 }
