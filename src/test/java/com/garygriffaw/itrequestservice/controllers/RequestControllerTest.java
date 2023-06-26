@@ -20,6 +20,7 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
 import org.springframework.security.web.authentication.logout.LogoutHandler;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 
 import java.time.Instant;
 import java.util.Optional;
@@ -187,6 +188,22 @@ class RequestControllerTest {
                     .content(objectMapper.writeValueAsString(newRequest)))
                 .andExpect(status().isCreated())
                 .andExpect(header().exists("Location"));
+    }
+
+    @WithMockUser(username = "abc")
+    @Test
+    void testCreateNewRequestBlankRequest() throws Exception {
+        RequestDTO newRequest = RequestDTO.builder().build();
+
+        MvcResult mvcResult = mockMvc.perform(post(RequestController.REQUESTS_PATH)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(newRequest)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.length()", is(4)))
+                .andReturn();
+
+        System.out.println(mvcResult.getResponse().getContentAsString());
     }
 
 //    @Test

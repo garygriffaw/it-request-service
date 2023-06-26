@@ -20,8 +20,8 @@ public class BootstrapData implements CommandLineRunner {
     private final RequestRepository requestRepository;
     private final UserRepository userRepository;
 
-    private final static String TEST_USER_1 = "test_user_1";
-    private final static String TEST_USER_2 = "test_user_2";
+    public final static String TEST_USER_1 = "test_user_1";
+    public final static String TEST_USER_2 = "test_user_2";
 
     @Transactional
     @Override

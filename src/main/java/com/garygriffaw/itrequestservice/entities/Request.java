@@ -35,20 +35,21 @@ public class Request {
     @Version
     private Integer version;
 
-    @NotBlank
-    @NotNull
-    @Size(max = 50)
+    @NotBlank(message = "Title must not be blank.")
+    @NotNull(message = "Title must have a value.")
+    @Size(min = 5, max = 50, message = "Title must be between 5 and 50 characters.")
     @Column(length = 50)
     private String title;
 
-    @NotBlank
-    @NotNull
-    @Size(max = 500)
+    @NotBlank(message = "Description must not be blank.")
+    @NotNull(message = "Description must have a value.")
+    @Size(min = 5, max = 500, message = "Title must be between 5 and 500 characters.")
     @Column(length = 500)
     private String description;
 
+//    @NotNull
     @ManyToOne
-    @JoinColumn(name = "requester_user_id", nullable = false)
+    @JoinColumn(name = "requester_user_id")
     private User requester;
 
     private String resolution;

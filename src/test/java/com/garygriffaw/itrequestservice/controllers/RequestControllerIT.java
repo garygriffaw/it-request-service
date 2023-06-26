@@ -12,11 +12,10 @@ import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.WebApplicationContext;
 
 import static org.hamcrest.core.Is.is;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.BDDMockito.given;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -123,6 +122,7 @@ public class RequestControllerIT {
     }
 
     @WithMockUser(username = "test_user_2")
+    @Transactional
     @Test
     void testCreateNewRequest() throws Exception {
         RequestDTO newRequest = RequestDTO.builder()
@@ -136,5 +136,21 @@ public class RequestControllerIT {
                         .content(objectMapper.writeValueAsString(newRequest)))
                 .andExpect(status().isCreated())
                 .andExpect(header().exists("Location"));
+    }
+
+    @WithMockUser(username = "test_user_2")
+    @Test
+    void testCreateNewRequestTitleTooShort() throws Exception {
+        RequestDTO newRequest = RequestDTO.builder()
+                .title("test")
+                .description("This is a test of testCreateNewRequest")
+                .build();
+
+        mockMvc.perform(post(RequestController.REQUESTS_PATH)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(newRequest)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.length()", is(1)));
     }
 }
