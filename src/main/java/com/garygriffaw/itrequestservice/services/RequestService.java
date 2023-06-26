@@ -16,7 +16,7 @@ public interface RequestService {
 
     Optional<RequestDTO> getRequestByIdAndRequester(Integer requestId, String requesterUsername);
 
-    RequestDTO saveNewRequest(RequestDTO requestDTO, HttpServletRequest httpRequest);
+    RequestDTO saveNewRequest(RequestDTO requestDTO, String requesterUsername);
 
     Optional<RequestDTO> updateRequestById(Integer requestId, RequestDTO requestDTO);
 }

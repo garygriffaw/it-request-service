@@ -84,8 +84,14 @@ public class RequestServiceJPA implements RequestService {
     }
 
     @Override
-    public RequestDTO saveNewRequest(RequestDTO requestDTO, HttpServletRequest httpRequest) {
-        requestDTO.setRequester(getCurrentUserDTO(httpRequest).get());
+    public RequestDTO saveNewRequest(RequestDTO requestDTO, String requesterUsername) {
+        Optional<UserDTO> requesterDTO = userService.getUserByUserName(requesterUsername);
+
+//        if (requesterDTO.isEmpty()) {
+//            return Optional.empty();
+//        }
+
+        requestDTO.setRequester(requesterDTO.get());
 
         return requestMapper.requestToRequestDTO(requestRepository.save(requestMapper.requestDTOToRequest(requestDTO)));
     }
@@ -145,6 +151,11 @@ public class RequestServiceJPA implements RequestService {
         jwt = authHeader.substring(7);
 
         return Optional.ofNullable(userService.getUserByUserName(jwtService.extractUsername(jwt)))
+                .orElse(null);
+    }
+
+    private Optional<UserDTO> getUserDTO(String username) {
+        return Optional.ofNullable(userService.getUserByUserName(username))
                 .orElse(null);
     }
 }

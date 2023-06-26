@@ -1,6 +1,8 @@
 package com.garygriffaw.itrequestservice.controllers;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.garygriffaw.itrequestservice.entities.Request;
+import com.garygriffaw.itrequestservice.model.RequestDTO;
 import com.garygriffaw.itrequestservice.repositories.RequestRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -13,12 +15,18 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
 import static org.hamcrest.core.Is.is;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest
 public class RequestControllerIT {
+
+    @Autowired
+    ObjectMapper objectMapper;
 
     @Autowired
     RequestRepository requestRepository;
@@ -112,5 +120,21 @@ public class RequestControllerIT {
         mockMvc.perform(get(RequestController.REQUESTS_PATH_ID, 9999)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isForbidden());
+    }
+
+    @WithMockUser(username = "test_user_2")
+    @Test
+    void testCreateNewRequest() throws Exception {
+        RequestDTO newRequest = RequestDTO.builder()
+                .title("testCreateNewRequest")
+                .description("This is a test of testCreateNewRequest")
+                .build();
+
+        mockMvc.perform(post(RequestController.REQUESTS_PATH)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(newRequest)))
+                .andExpect(status().isCreated())
+                .andExpect(header().exists("Location"));
     }
 }

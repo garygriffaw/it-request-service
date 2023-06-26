@@ -171,24 +171,24 @@ class RequestControllerTest {
                 .andExpect(status().isForbidden());
     }
 
-//    @Test
-//    void testCreateNewRequest() throws Exception {
-//        RequestDTO newRequest = requestServiceImpl.listRequests(1, 25).getContent().get(0);
-//        newRequest.setId(null);
-//        newRequest.setVersion(null);
-//
-//        given(requestService.saveNewRequest(any(RequestDTO.class), any()))
-//                .willReturn(requestServiceImpl.listRequests(1, 25).getContent().get(1));
-//
-//        mockMvc.perform(post(RequestController.REQUESTS_PATH)
-//                    .with(jwtRequestPostProcessor)
-//                    .accept(MediaType.APPLICATION_JSON)
-//                    .contentType(MediaType.APPLICATION_JSON)
-//                    .content(objectMapper.writeValueAsString(newRequest)))
-//                .andExpect(status().isCreated())
-//                .andExpect(header().exists("Location"));
-//    }
-//
+    @WithMockUser(username = "abc")
+    @Test
+    void testCreateNewRequest() throws Exception {
+        RequestDTO newRequest = requestServiceImpl.listRequests(1, 25).getContent().get(0);
+        newRequest.setId(null);
+        newRequest.setVersion(null);
+
+        given(requestService.saveNewRequest(any(RequestDTO.class), any()))
+                .willReturn(requestServiceImpl.listRequests(1, 25).getContent().get(1));
+
+        mockMvc.perform(post(RequestController.REQUESTS_PATH)
+                    .accept(MediaType.APPLICATION_JSON)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(newRequest)))
+                .andExpect(status().isCreated())
+                .andExpect(header().exists("Location"));
+    }
+
 //    @Test
 //    void testUpdateRequest() throws Exception {
 //        RequestDTO request = requestServiceImpl.listRequests(1, 25).getContent().get(0);

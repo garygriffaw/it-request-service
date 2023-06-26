@@ -91,7 +91,7 @@ public class RequestServiceImpl implements RequestService {
     }
 
     @Override
-    public RequestDTO saveNewRequest(RequestDTO requestDTO, HttpServletRequest httpRequest) {
+    public RequestDTO saveNewRequest(RequestDTO requestDTO, String requesterUsername) {
         RequestDTO savedRequest = RequestDTO.builder()
                 .id(4)
                 .title(requestDTO.getTitle())

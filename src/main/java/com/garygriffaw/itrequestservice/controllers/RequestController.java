@@ -56,8 +56,8 @@ public class RequestController {
     }
 
     @PostMapping(REQUESTS_PATH)
-    public ResponseEntity saveNewRequest(@Validated @RequestBody RequestDTO requestDTO, HttpServletRequest httpRequest) {
-        RequestDTO savedRequest = requestService.saveNewRequest(requestDTO, httpRequest);
+    public ResponseEntity saveNewRequest(@Validated @RequestBody RequestDTO requestDTO, Authentication authentication) {
+        RequestDTO savedRequest = requestService.saveNewRequest(requestDTO, authentication.getName());
 
         HttpHeaders headers = new HttpHeaders();
         headers.add("Location", REQUESTS_PATH + "/" + savedRequest.getId().toString());
