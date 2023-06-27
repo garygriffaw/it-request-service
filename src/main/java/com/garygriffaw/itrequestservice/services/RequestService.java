@@ -1,6 +1,7 @@
 package com.garygriffaw.itrequestservice.services;
 
 import com.garygriffaw.itrequestservice.model.RequestDTO;
+import com.garygriffaw.itrequestservice.model.RequestRequesterDTO;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.data.domain.Page;
 
@@ -19,4 +20,6 @@ public interface RequestService {
     RequestDTO saveNewRequest(RequestDTO requestDTO, String requesterUsername);
 
     Optional<RequestDTO> updateRequestById(Integer requestId, RequestDTO requestDTO);
+
+    Optional<RequestDTO> updateRequestByIdAndRequester(Integer requestId, String requesterUsername, RequestRequesterDTO requestDTO);
 }

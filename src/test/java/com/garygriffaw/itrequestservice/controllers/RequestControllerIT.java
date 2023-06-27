@@ -1,24 +1,29 @@
 package com.garygriffaw.itrequestservice.controllers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.garygriffaw.itrequestservice.bootstrap.BootstrapData;
 import com.garygriffaw.itrequestservice.entities.Request;
 import com.garygriffaw.itrequestservice.model.RequestDTO;
+import com.garygriffaw.itrequestservice.model.RequestRequesterDTO;
 import com.garygriffaw.itrequestservice.repositories.RequestRepository;
+import com.garygriffaw.itrequestservice.repositories.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.annotation.Rollback;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.WebApplicationContext;
 
 import static org.hamcrest.core.Is.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest
@@ -29,6 +34,9 @@ public class RequestControllerIT {
 
     @Autowired
     RequestRepository requestRepository;
+
+    @Autowired
+    UserRepository userRepository;
 
     @Autowired
     WebApplicationContext wac;
@@ -152,5 +160,71 @@ public class RequestControllerIT {
                         .content(objectMapper.writeValueAsString(newRequest)))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.length()", is(1)));
+    }
+
+    @WithMockUser(username = BootstrapData.TEST_USER_2)
+    @Rollback
+    @Transactional
+    @Test
+    void testRequesterUpdateRequest() throws Exception {
+        Request testRequest = requestRepository.findAll().get(1);
+        final String updateTitle = testRequest.getTitle() + " updated";
+        final String updateDescription = testRequest.getDescription() + " updated";
+        RequestRequesterDTO testDTO = RequestRequesterDTO.builder()
+                .id(testRequest.getId())
+                .version(testRequest.getVersion())
+                .title(updateTitle)
+                .description(updateDescription)
+                .build();
+
+        mockMvc.perform(put(RequestController.REQUESTS_REQUESTER_PATH_ID, testRequest.getId())
+                        .accept(MediaType.APPLICATION_JSON)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(testDTO)))
+                .andExpect(status().isNoContent());
+
+        Request updatedRequest = requestRepository.findById(testDTO.getId()).get();
+        assertThat(updatedRequest.getTitle()).isEqualTo(updateTitle);
+        assertThat(updatedRequest.getDescription()).isEqualTo(updateDescription);
+    }
+
+    @WithMockUser(username = BootstrapData.TEST_USER_2)
+    @Test
+    void testRequesterUpdateRequestNotFound() throws Exception {
+        Request testRequest = requestRepository.findAll().get(1);
+        final String updateTitle = testRequest.getTitle() + " updated";
+        final String updateDescription = testRequest.getDescription() + " updated";
+        RequestRequesterDTO testDTO = RequestRequesterDTO.builder()
+                .id(testRequest.getId())
+                .version(testRequest.getVersion())
+                .title(updateTitle)
+                .description(updateDescription)
+                .build();
+
+        mockMvc.perform(put(RequestController.REQUESTS_REQUESTER_PATH_ID, 9999)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(testDTO)))
+                .andExpect(status().isNotFound());
+    }
+
+    @WithMockUser(username = BootstrapData.TEST_USER_1)
+    @Test
+    void testRequesterUpdateRequestWrongRequester() throws Exception {
+        Request testRequest = requestRepository.findAll().get(1);
+        final String updateTitle = testRequest.getTitle() + " updated";
+        final String updateDescription = testRequest.getDescription() + " updated";
+        RequestRequesterDTO testDTO = RequestRequesterDTO.builder()
+                .id(testRequest.getId())
+                .version(testRequest.getVersion())
+                .title(updateTitle)
+                .description(updateDescription)
+                .build();
+
+        mockMvc.perform(put(RequestController.REQUESTS_REQUESTER_PATH_ID, testRequest.getId())
+                        .accept(MediaType.APPLICATION_JSON)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(testDTO)))
+                .andExpect(status().isNotFound());
     }
 }

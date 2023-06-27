@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.garygriffaw.itrequestservice.config.JwtService;
 import com.garygriffaw.itrequestservice.config.SecurityConfiguration;
 import com.garygriffaw.itrequestservice.model.RequestDTO;
+import com.garygriffaw.itrequestservice.model.RequestRequesterDTO;
 import com.garygriffaw.itrequestservice.services.RequestService;
 import com.garygriffaw.itrequestservice.services.RequestServiceImpl;
 import com.garygriffaw.itrequestservice.token.TokenRepository;
@@ -28,6 +29,7 @@ import java.util.Optional;
 import static org.hamcrest.core.Is.is;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.verify;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -206,35 +208,41 @@ class RequestControllerTest {
         System.out.println(mvcResult.getResponse().getContentAsString());
     }
 
-//    @Test
-//    void testUpdateRequest() throws Exception {
-//        RequestDTO request = requestServiceImpl.listRequests(1, 25).getContent().get(0);
-//
-//        given(requestService.updateRequestById(any(), any(RequestDTO.class)))
-//                .willReturn(Optional.of(request));
-//
-//        mockMvc.perform(put(RequestController.REQUESTS_PATH_ID, request.getId())
-//                        .with(jwtRequestPostProcessor)
-//                        .accept(MediaType.APPLICATION_JSON)
-//                        .contentType(MediaType.APPLICATION_JSON)
-//                        .content(objectMapper.writeValueAsString(request)))
-//                .andExpect(status().isNoContent());
-//
-//        verify(requestService).updateRequestById(any(Integer.class), any(RequestDTO.class));
-//    }
-//
-//    @Test
-//    void testUpdateRequestNotFound() throws Exception {
-//        RequestDTO request = requestServiceImpl.listRequests(1, 25).getContent().get(0);
-//
-//        given(requestService.updateRequestById(any(), any(RequestDTO.class)))
-//                .willReturn(Optional.empty());
-//
-//        mockMvc.perform(put(RequestController.REQUESTS_PATH_ID, request.getId())
-//                        .with(jwtRequestPostProcessor)
-//                        .accept(MediaType.APPLICATION_JSON)
-//                        .contentType(MediaType.APPLICATION_JSON)
-//                        .content(objectMapper.writeValueAsString(request)))
-//                .andExpect(status().isNotFound());
-//    }
+    @WithMockUser(username = "abc")
+    @Test
+    void testRequesterUpdateRequest() throws Exception {
+        RequestDTO request = requestServiceImpl.listRequests(1, 25).getContent().get(0);
+        RequestRequesterDTO testDTO = RequestRequesterDTO.builder()
+                .id(request.getId())
+                .version(request.getVersion())
+                .title(request.getTitle())
+                .description(request.getDescription())
+                .build();
+
+        given(requestService.updateRequestByIdAndRequester(any(), any(), any(RequestRequesterDTO.class)))
+                .willReturn(Optional.of(request));
+
+        mockMvc.perform(put(RequestController.REQUESTS_REQUESTER_PATH_ID, request.getId())
+                        .accept(MediaType.APPLICATION_JSON)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(testDTO)))
+                .andExpect(status().isNoContent());
+
+        verify(requestService).updateRequestByIdAndRequester(any(Integer.class), any(String.class), any(RequestRequesterDTO.class));
+    }
+
+    @WithMockUser(username = "abc")
+    @Test
+    void testRequesterUpdateRequestNotFound() throws Exception {
+        RequestDTO request = requestServiceImpl.listRequests(1, 25).getContent().get(0);
+
+        given(requestService.updateRequestByIdAndRequester(any(), any(), any(RequestRequesterDTO.class)))
+                .willReturn(Optional.empty());
+
+        mockMvc.perform(put(RequestController.REQUESTS_REQUESTER_PATH_ID, request.getId())
+                        .accept(MediaType.APPLICATION_JSON)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isNotFound());
+    }
 }

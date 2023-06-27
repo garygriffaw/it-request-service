@@ -6,6 +6,7 @@ import com.garygriffaw.itrequestservice.entities.User;
 import com.garygriffaw.itrequestservice.mappers.RequestMapper;
 import com.garygriffaw.itrequestservice.mappers.UserMapper;
 import com.garygriffaw.itrequestservice.model.RequestDTO;
+import com.garygriffaw.itrequestservice.model.RequestRequesterDTO;
 import com.garygriffaw.itrequestservice.model.UserDTO;
 import com.garygriffaw.itrequestservice.repositories.RequestRepository;
 import jakarta.servlet.http.HttpServletRequest;
@@ -112,6 +113,28 @@ public class RequestServiceJPA implements RequestService {
         return atomicReference.get();
     }
 
+    @Override
+    public Optional<RequestDTO> updateRequestByIdAndRequester(Integer requestId, String requesterUsername, RequestRequesterDTO requestDTO) {
+        AtomicReference<Optional<RequestDTO>> atomicReference = new AtomicReference<>();
+
+        Optional<UserDTO> requesterDTO = userService.getUserByUserName(requesterUsername);
+
+        if (requesterDTO.isEmpty()) {
+            return Optional.empty();
+        }
+
+        User requester = userMapper.userDTOToUser(requesterDTO.get());
+
+        requestRepository.findByIdAndRequester(requestId, requester).ifPresentOrElse(foundRequest -> {
+            foundRequest.setTitle(requestDTO.getTitle());
+            foundRequest.setDescription(requestDTO.getDescription());
+            atomicReference.set(Optional.of(requestMapper.requestToRequestDTO(requestRepository.save(foundRequest))));
+        }, () -> {
+            atomicReference.set(Optional.empty());
+        });
+
+        return atomicReference.get();
+    }
 
     private PageRequest buildPageRequest(Integer pageNumber, Integer pageSize) {
         int queryPageNumber = getPageNumber(pageNumber);

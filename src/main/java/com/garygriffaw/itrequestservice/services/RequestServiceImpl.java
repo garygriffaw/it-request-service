@@ -1,8 +1,8 @@
 package com.garygriffaw.itrequestservice.services;
 
 import com.garygriffaw.itrequestservice.model.RequestDTO;
+import com.garygriffaw.itrequestservice.model.RequestRequesterDTO;
 import com.garygriffaw.itrequestservice.model.UserDTO;
-import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.stereotype.Service;
@@ -109,6 +109,15 @@ public class RequestServiceImpl implements RequestService {
         existing.setTitle(requestDTO.getTitle());
         existing.setDescription(requestDTO.getDescription());
         existing.setResolution(requestDTO.getResolution());
+
+        return Optional.of(existing);
+    }
+
+    @Override
+    public Optional<RequestDTO> updateRequestByIdAndRequester(Integer requestId, String requesterUsername, RequestRequesterDTO requestDTO) {
+        RequestDTO existing = requestMap.get(requestId);
+        existing.setTitle(requestDTO.getTitle());
+        existing.setDescription(requestDTO.getDescription());
 
         return Optional.of(existing);
     }

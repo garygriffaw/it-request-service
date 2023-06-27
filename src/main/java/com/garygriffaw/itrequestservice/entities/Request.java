@@ -47,7 +47,7 @@ public class Request {
     @Column(length = 500)
     private String description;
 
-//    @NotNull
+    @NotNull
     @ManyToOne
     @JoinColumn(name = "requester_user_id")
     private User requester;
@@ -55,6 +55,7 @@ public class Request {
     private String resolution;
 
     @CreationTimestamp
+    @Column(updatable = false)
     private LocalDateTime createdDate;
 
     @UpdateTimestamp
