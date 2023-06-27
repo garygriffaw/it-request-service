@@ -3,6 +3,7 @@ package com.garygriffaw.itrequestservice.controllers;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.garygriffaw.itrequestservice.bootstrap.BootstrapData;
 import com.garygriffaw.itrequestservice.entities.Request;
+import com.garygriffaw.itrequestservice.entities.User;
 import com.garygriffaw.itrequestservice.mappers.UserMapper;
 import com.garygriffaw.itrequestservice.model.RequestDTO;
 import com.garygriffaw.itrequestservice.model.RequestRequesterDTO;
@@ -165,6 +166,66 @@ public class RequestControllerIT {
                         .content(objectMapper.writeValueAsString(newRequest)))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.length()", is(1)));
+    }
+
+    @WithMockUser(username = BootstrapData.TEST_USER_2, roles = "ADMIN")
+    @Rollback
+    @Transactional
+    @Test
+    void testUpdateRequest() throws Exception {
+        Request testRequest = requestRepository.findAll().get(1);
+        final String updateTitle = getUpdatedString(testRequest.getTitle());
+        final String updateDescription = getUpdatedString(testRequest.getDescription());
+        final User updateUser = userRepository.findByUsername(BootstrapData.TEST_USER_1).get();
+        final UserDTO updateUserDTO = userMapper.userToUserDTO(updateUser);
+        final String updateResolution = getUpdatedString(testRequest.getResolution());
+        RequestDTO testDTO = RequestDTO.builder()
+                .id(testRequest.getId())
+                .version(testRequest.getVersion())
+                .title(updateTitle)
+                .description(updateDescription)
+                .requester(updateUserDTO)
+                .resolution(updateResolution)
+                .build();
+
+        mockMvc.perform(put(RequestController.REQUESTS_PATH_ID, testRequest.getId())
+                        .accept(MediaType.APPLICATION_JSON)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(testDTO)))
+                .andExpect(status().isNoContent());
+
+        Request updatedRequest = requestRepository.findById(testDTO.getId()).get();
+        assertThat(updatedRequest.getTitle()).isEqualTo(updateTitle);
+        assertThat(updatedRequest.getDescription()).isEqualTo(updateDescription);
+        assertThat(updatedRequest.getRequester().getUsername()).isEqualTo(updateUser.getUsername());
+        assertThat(updatedRequest.getResolution()).isEqualTo(updateResolution);
+    }
+
+    @WithMockUser(username = BootstrapData.TEST_USER_2, roles = "ADMIN")
+    @Rollback
+    @Transactional
+    @Test
+    void testUpdateRequestNotFound() throws Exception {
+        Request testRequest = requestRepository.findAll().get(1);
+        final String updateTitle = getUpdatedString(testRequest.getTitle());
+        final String updateDescription = getUpdatedString(testRequest.getDescription());
+        final User updateUser = userRepository.findByUsername(BootstrapData.TEST_USER_1).get();
+        final UserDTO updateUserDTO = userMapper.userToUserDTO(updateUser);
+        final String updateResolution = getUpdatedString(testRequest.getResolution());
+        RequestDTO testDTO = RequestDTO.builder()
+                .id(testRequest.getId())
+                .version(testRequest.getVersion())
+                .title(updateTitle)
+                .description(updateDescription)
+                .requester(updateUserDTO)
+                .resolution(updateResolution)
+                .build();
+
+        mockMvc.perform(put(RequestController.REQUESTS_PATH_ID, 9999)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(testDTO)))
+                .andExpect(status().isNotFound());
     }
 
     @WithMockUser(username = BootstrapData.TEST_USER_2)

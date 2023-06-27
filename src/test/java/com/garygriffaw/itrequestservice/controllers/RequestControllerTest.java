@@ -208,6 +208,50 @@ class RequestControllerTest {
         System.out.println(mvcResult.getResponse().getContentAsString());
     }
 
+    @WithMockUser(username = "abc", roles = "ADMIN")
+    @Test
+    void testUpdateRequest() throws Exception {
+        RequestDTO testDTO = requestServiceImpl.listRequests(1, 25).getContent().get(0);
+
+        given(requestService.updateRequestById(any(), any()))
+                .willReturn(Optional.of(testDTO));
+
+        mockMvc.perform(put(RequestController.REQUESTS_PATH_ID, testDTO.getId())
+                        .accept(MediaType.APPLICATION_JSON)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(testDTO)))
+                .andExpect(status().isNoContent());
+
+        verify(requestService).updateRequestById(any(Integer.class), any(RequestDTO.class));
+    }
+
+    @WithMockUser(username = "abc", roles = "ADMIN")
+    @Test
+    void testUpdateRequestNotFound() throws Exception {
+        RequestDTO testDTO = requestServiceImpl.listRequests(1, 25).getContent().get(0);
+
+        given(requestService.updateRequestById(any(), any()))
+                .willReturn(Optional.empty());
+
+        mockMvc.perform(put(RequestController.REQUESTS_PATH_ID, testDTO.getId())
+                        .accept(MediaType.APPLICATION_JSON)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(testDTO)))
+                .andExpect(status().isNotFound());
+    }
+
+    @WithMockUser(username = "abc", roles = "USER")
+    @Test
+    void testUpdateRequestForbidden() throws Exception {
+        RequestDTO testDTO = requestServiceImpl.listRequests(1, 25).getContent().get(0);
+
+        mockMvc.perform(put(RequestController.REQUESTS_PATH_ID, testDTO.getId())
+                        .accept(MediaType.APPLICATION_JSON)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(testDTO)))
+                .andExpect(status().isForbidden());
+    }
+
     @WithMockUser(username = "abc")
     @Test
     void testRequesterUpdateRequest() throws Exception {

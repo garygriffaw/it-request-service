@@ -101,9 +101,18 @@ public class RequestServiceJPA implements RequestService {
     public Optional<RequestDTO> updateRequestById(Integer requestId, RequestDTO requestDTO) {
         AtomicReference<Optional<RequestDTO>> atomicReference =new AtomicReference<>();
 
+        Optional<UserDTO> requesterDTO = userService.getUserByUserName(requestDTO.getRequester().getUsername());
+
+        if (requesterDTO.isEmpty()) {
+            return Optional.empty();
+        }
+
+        User requester = userMapper.userDTOToUser(requesterDTO.get());
+
         requestRepository.findById(requestId).ifPresentOrElse(foundRequest -> {
             foundRequest.setTitle(requestDTO.getTitle());
             foundRequest.setDescription(requestDTO.getDescription());
+            foundRequest.setRequester(requester);
             foundRequest.setResolution(requestDTO.getResolution());
             atomicReference.set(Optional.of(requestMapper.requestToRequestDTO(requestRepository.save(foundRequest))));
         }, () -> {

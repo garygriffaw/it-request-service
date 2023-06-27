@@ -3,7 +3,6 @@ package com.garygriffaw.itrequestservice.controllers;
 import com.garygriffaw.itrequestservice.model.RequestDTO;
 import com.garygriffaw.itrequestservice.model.RequestRequesterDTO;
 import com.garygriffaw.itrequestservice.services.RequestService;
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpHeaders;
@@ -70,7 +69,9 @@ public class RequestController {
     }
 
     @PutMapping(REQUESTS_PATH_ID)
-    public ResponseEntity updateRequestById(@PathVariable("requestId") Integer requestId, @Validated @RequestBody RequestDTO requestDTO) {
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity updateRequestById(@PathVariable("requestId") Integer requestId,
+                                            @Validated @RequestBody RequestDTO requestDTO) {
         if (requestService.updateRequestById(requestId, requestDTO).isEmpty()) {
             throw new NotFoundException();
         }
