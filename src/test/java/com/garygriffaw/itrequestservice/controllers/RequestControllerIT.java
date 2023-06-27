@@ -3,8 +3,10 @@ package com.garygriffaw.itrequestservice.controllers;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.garygriffaw.itrequestservice.bootstrap.BootstrapData;
 import com.garygriffaw.itrequestservice.entities.Request;
+import com.garygriffaw.itrequestservice.mappers.UserMapper;
 import com.garygriffaw.itrequestservice.model.RequestDTO;
 import com.garygriffaw.itrequestservice.model.RequestRequesterDTO;
+import com.garygriffaw.itrequestservice.model.UserDTO;
 import com.garygriffaw.itrequestservice.repositories.RequestRepository;
 import com.garygriffaw.itrequestservice.repositories.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -37,6 +39,9 @@ public class RequestControllerIT {
 
     @Autowired
     UserRepository userRepository;
+
+    @Autowired
+    UserMapper userMapper;
 
     @Autowired
     WebApplicationContext wac;
@@ -168,13 +173,17 @@ public class RequestControllerIT {
     @Test
     void testRequesterUpdateRequest() throws Exception {
         Request testRequest = requestRepository.findAll().get(1);
-        final String updateTitle = testRequest.getTitle() + " updated";
-        final String updateDescription = testRequest.getDescription() + " updated";
-        RequestRequesterDTO testDTO = RequestRequesterDTO.builder()
+        final String updateTitle = getUpdatedString(testRequest.getTitle());
+        final String updateDescription = getUpdatedString(testRequest.getDescription());
+        final UserDTO updateUser = userMapper.userToUserDTO(userRepository.findByUsername(BootstrapData.TEST_USER_1).get());
+        final String updateResolution = getUpdatedString(testRequest.getResolution());
+        RequestDTO testDTO = RequestDTO.builder()
                 .id(testRequest.getId())
                 .version(testRequest.getVersion())
                 .title(updateTitle)
                 .description(updateDescription)
+                .requester(updateUser)
+                .resolution(updateResolution)
                 .build();
 
         mockMvc.perform(put(RequestController.REQUESTS_REQUESTER_PATH_ID, testRequest.getId())
@@ -186,14 +195,18 @@ public class RequestControllerIT {
         Request updatedRequest = requestRepository.findById(testDTO.getId()).get();
         assertThat(updatedRequest.getTitle()).isEqualTo(updateTitle);
         assertThat(updatedRequest.getDescription()).isEqualTo(updateDescription);
+
+        // These should not be updated
+        assertThat(updatedRequest.getRequester()).isEqualTo(testRequest.getRequester());
+        assertThat(updatedRequest.getResolution()).isEqualTo(testRequest.getResolution());
     }
 
     @WithMockUser(username = BootstrapData.TEST_USER_2)
     @Test
     void testRequesterUpdateRequestNotFound() throws Exception {
         Request testRequest = requestRepository.findAll().get(1);
-        final String updateTitle = testRequest.getTitle() + " updated";
-        final String updateDescription = testRequest.getDescription() + " updated";
+        final String updateTitle = getUpdatedString(testRequest.getTitle());
+        final String updateDescription = getUpdatedString(testRequest.getDescription());
         RequestRequesterDTO testDTO = RequestRequesterDTO.builder()
                 .id(testRequest.getId())
                 .version(testRequest.getVersion())
@@ -226,5 +239,9 @@ public class RequestControllerIT {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(testDTO)))
                 .andExpect(status().isNotFound());
+    }
+
+    private String getUpdatedString(String string) {
+        return string + " updated";
     }
 }
