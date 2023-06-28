@@ -89,4 +89,14 @@ public class RequestController {
 
         return new ResponseEntity(HttpStatus.NO_CONTENT);
     }
+
+    @DeleteMapping(REQUESTS_PATH_ID)
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity deleteById(@PathVariable("requestId") Integer requestId) {
+        if (!requestService.deleteById(requestId)) {
+            throw new NotFoundException();
+        }
+
+        return new ResponseEntity(HttpStatus.NO_CONTENT);
+    }
 }

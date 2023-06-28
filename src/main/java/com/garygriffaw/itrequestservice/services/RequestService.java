@@ -22,4 +22,6 @@ public interface RequestService {
     Optional<RequestDTO> updateRequestById(Integer requestId, RequestDTO requestDTO);
 
     Optional<RequestDTO> updateRequestByIdAndRequester(Integer requestId, String requesterUsername, RequestRequesterDTO requestDTO);
+
+    boolean deleteById(Integer requestId);
 }

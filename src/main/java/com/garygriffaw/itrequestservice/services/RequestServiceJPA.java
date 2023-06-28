@@ -145,6 +145,16 @@ public class RequestServiceJPA implements RequestService {
         return atomicReference.get();
     }
 
+    @Override
+    public boolean deleteById(Integer requestId) {
+        if (requestRepository.existsById(requestId)) {
+            requestRepository.deleteById(requestId);
+            return true;
+        }
+
+        return false;
+    }
+
     private PageRequest buildPageRequest(Integer pageNumber, Integer pageSize) {
         int queryPageNumber = getPageNumber(pageNumber);
         int queryPageSize = getPageSize(pageSize);

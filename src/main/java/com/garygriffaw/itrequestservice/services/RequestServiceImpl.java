@@ -121,4 +121,11 @@ public class RequestServiceImpl implements RequestService {
 
         return Optional.of(existing);
     }
+
+    @Override
+    public boolean deleteById(Integer requestId) {
+        requestMap.remove(requestId);
+
+        return true;
+    }
 }

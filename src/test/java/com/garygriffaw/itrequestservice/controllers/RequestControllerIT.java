@@ -302,6 +302,38 @@ public class RequestControllerIT {
                 .andExpect(status().isNotFound());
     }
 
+    @WithMockUser(username = BootstrapData.TEST_USER_2, roles = "ADMIN")
+    @Rollback
+    @Transactional
+    @Test
+    void testDeleteRequest() throws Exception {
+        Request testRequest = requestRepository.findAll().get(1);
+
+        mockMvc.perform(delete(RequestController.REQUESTS_PATH_ID, testRequest.getId())
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNoContent());
+
+        assertThat(requestRepository.findById(testRequest.getId()).isEmpty());
+    }
+
+    @WithMockUser(username = BootstrapData.TEST_USER_2, roles = "ADMIN")
+    @Test
+    void testDeleteRequestNotFound() throws Exception {
+        mockMvc.perform(delete(RequestController.REQUESTS_PATH_ID, 9999)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound());
+    }
+
+    @WithMockUser(username = BootstrapData.TEST_USER_2, roles = "USER")
+    @Test
+    void testDeleteRequestForbidden() throws Exception {
+        Request testRequest = requestRepository.findAll().get(1);
+
+        mockMvc.perform(delete(RequestController.REQUESTS_PATH_ID, testRequest.getId())
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isForbidden());
+    }
+
     private String getUpdatedString(String string) {
         return string + " updated";
     }

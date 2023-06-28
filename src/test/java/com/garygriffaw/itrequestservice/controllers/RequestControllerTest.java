@@ -10,6 +10,8 @@ import com.garygriffaw.itrequestservice.services.RequestServiceImpl;
 import com.garygriffaw.itrequestservice.token.TokenRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -26,6 +28,7 @@ import org.springframework.test.web.servlet.MvcResult;
 import java.time.Instant;
 import java.util.Optional;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
@@ -65,6 +68,9 @@ class RequestControllerTest {
     LogoutHandler logoutHandler;
 
     RequestServiceImpl requestServiceImpl;
+
+    @Captor
+    ArgumentCaptor<Integer> requestIdArgumentCaptor;
 
     public static final SecurityMockMvcRequestPostProcessors.JwtRequestPostProcessor jwtRequestPostProcessor =
             jwt().jwt(jwt -> {
@@ -288,5 +294,32 @@ class RequestControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isNotFound());
+    }
+
+    @WithMockUser(username = "abc", roles = "ADMIN")
+    @Test
+    void testDeleteRequest() throws Exception {
+        RequestDTO request = requestServiceImpl.listRequests(1, 25).getContent().get(0);
+
+        given(requestService.deleteById(any()))
+                .willReturn(true);
+
+        mockMvc.perform(delete(RequestController.REQUESTS_PATH_ID, request.getId())
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNoContent());
+
+        verify(requestService).deleteById(requestIdArgumentCaptor.capture());
+
+        assertThat(request.getId()).isEqualTo(requestIdArgumentCaptor.getValue());
+    }
+
+    @WithMockUser(username = "abc", roles = "USER")
+    @Test
+    void testDeleteRequestForbidden() throws Exception {
+        RequestDTO request = requestServiceImpl.listRequests(1, 25).getContent().get(0);
+
+        mockMvc.perform(delete(RequestController.REQUESTS_PATH_ID, request.getId())
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isForbidden());
     }
 }
