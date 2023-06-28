@@ -27,7 +27,7 @@ public class RequestDTO {
     @Column(length = 500)
     private String description;
 
-    private UserDTO requester;
+    private UserUnsecureDTO requester;
 
     private String resolution;
 

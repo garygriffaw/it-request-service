@@ -1,13 +1,13 @@
 package com.garygriffaw.itrequestservice.mappers;
 
 import com.garygriffaw.itrequestservice.entities.User;
-import com.garygriffaw.itrequestservice.model.UserDTO;
+import com.garygriffaw.itrequestservice.model.UserUnsecureDTO;
 import org.mapstruct.Mapper;
 
 @Mapper
 public interface UserMapper {
 
-    User userDTOToUser(UserDTO userDTO);
+    User userUnsecureDTOToUser(UserUnsecureDTO userDTO);
 
-    UserDTO userToUserDTO(User user);
+    UserUnsecureDTO userToUserUnsecureDTO(User user);
 }

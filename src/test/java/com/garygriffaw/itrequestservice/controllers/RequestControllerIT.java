@@ -7,7 +7,7 @@ import com.garygriffaw.itrequestservice.entities.User;
 import com.garygriffaw.itrequestservice.mappers.UserMapper;
 import com.garygriffaw.itrequestservice.model.RequestDTO;
 import com.garygriffaw.itrequestservice.model.RequestRequesterDTO;
-import com.garygriffaw.itrequestservice.model.UserDTO;
+import com.garygriffaw.itrequestservice.model.UserUnsecureDTO;
 import com.garygriffaw.itrequestservice.repositories.RequestRepository;
 import com.garygriffaw.itrequestservice.repositories.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -193,7 +193,7 @@ public class RequestControllerIT {
         final String updateTitle = getUpdatedString(testRequest.getTitle());
         final String updateDescription = getUpdatedString(testRequest.getDescription());
         final User updateUser = userRepository.findByUsername(BootstrapData.TEST_USER_1).get();
-        final UserDTO updateUserDTO = userMapper.userToUserDTO(updateUser);
+        final UserUnsecureDTO updateUserDTO = userMapper.userToUserUnsecureDTO(updateUser);
         final String updateResolution = getUpdatedString(testRequest.getResolution());
         RequestDTO testDTO = RequestDTO.builder()
                 .id(testRequest.getId())
@@ -226,7 +226,7 @@ public class RequestControllerIT {
         final String updateTitle = getUpdatedString(testRequest.getTitle());
         final String updateDescription = getUpdatedString(testRequest.getDescription());
         final User updateUser = userRepository.findByUsername(BootstrapData.TEST_USER_1).get();
-        final UserDTO updateUserDTO = userMapper.userToUserDTO(updateUser);
+        final UserUnsecureDTO updateUserDTO = userMapper.userToUserUnsecureDTO(updateUser);
         final String updateResolution = getUpdatedString(testRequest.getResolution());
         RequestDTO testDTO = RequestDTO.builder()
                 .id(testRequest.getId())
@@ -252,7 +252,7 @@ public class RequestControllerIT {
         Request testRequest = requestRepository.findAll().get(1);
         final String updateTitle = getUpdatedString(testRequest.getTitle());
         final String updateDescription = getUpdatedString(testRequest.getDescription());
-        final UserDTO updateUser = userMapper.userToUserDTO(userRepository.findByUsername(BootstrapData.TEST_USER_1).get());
+        final UserUnsecureDTO updateUser = userMapper.userToUserUnsecureDTO(userRepository.findByUsername(BootstrapData.TEST_USER_1).get());
         final String updateResolution = getUpdatedString(testRequest.getResolution());
         RequestDTO testDTO = RequestDTO.builder()
                 .id(testRequest.getId())

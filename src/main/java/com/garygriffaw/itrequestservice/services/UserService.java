@@ -1,10 +1,10 @@
 package com.garygriffaw.itrequestservice.services;
 
-import com.garygriffaw.itrequestservice.model.UserDTO;
+import com.garygriffaw.itrequestservice.model.UserUnsecureDTO;
 
 import java.util.Optional;
 
 public interface UserService {
 
-    Optional<UserDTO> getUserByUserName(String username);
+    Optional<UserUnsecureDTO> getUserByUserName(String username);
 }

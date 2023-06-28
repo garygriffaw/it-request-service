@@ -7,7 +7,7 @@ import com.garygriffaw.itrequestservice.mappers.RequestMapper;
 import com.garygriffaw.itrequestservice.mappers.UserMapper;
 import com.garygriffaw.itrequestservice.model.RequestDTO;
 import com.garygriffaw.itrequestservice.model.RequestRequesterDTO;
-import com.garygriffaw.itrequestservice.model.UserDTO;
+import com.garygriffaw.itrequestservice.model.UserUnsecureDTO;
 import com.garygriffaw.itrequestservice.repositories.RequestRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -52,13 +52,13 @@ public class RequestServiceJPA implements RequestService {
 
         Page<Request> requestPage;
 
-        Optional<UserDTO> requesterDTO = userService.getUserByUserName(requesterUsername);
+        Optional<UserUnsecureDTO> requesterDTO = userService.getUserByUserName(requesterUsername);
 
         if (requesterDTO.isEmpty()) {
             return Page.empty();
         }
 
-        User requester = userMapper.userDTOToUser(requesterDTO.get());
+        User requester = userMapper.userUnsecureDTOToUser(requesterDTO.get());
         requestPage = requestRepository.findAllByRequester(requester, pageRequest);
 
         return requestPage.map(requestMapper::requestToRequestDTO);
@@ -72,13 +72,13 @@ public class RequestServiceJPA implements RequestService {
 
     @Override
     public Optional<RequestDTO> getRequestByIdAndRequester(Integer requestId, String requesterUsername) {
-        Optional<UserDTO> requesterDTO = userService.getUserByUserName(requesterUsername);
+        Optional<UserUnsecureDTO> requesterDTO = userService.getUserByUserName(requesterUsername);
 
         if (requesterDTO.isEmpty()) {
             return Optional.empty();
         }
 
-        User requester = userMapper.userDTOToUser(requesterDTO.get());
+        User requester = userMapper.userUnsecureDTOToUser(requesterDTO.get());
 
         return Optional.ofNullable(requestMapper.requestToRequestDTO(requestRepository.findByIdAndRequester(requestId, requester)
                 .orElse(null)));
@@ -86,7 +86,7 @@ public class RequestServiceJPA implements RequestService {
 
     @Override
     public Optional<RequestDTO> saveNewRequest(RequestRequesterDTO requestRequesterDTO, String requesterUsername) {
-        Optional<UserDTO> requesterDTO = userService.getUserByUserName(requesterUsername);
+        Optional<UserUnsecureDTO> requesterDTO = userService.getUserByUserName(requesterUsername);
 
         if (requesterDTO.isEmpty()) {
             return Optional.empty();
@@ -105,13 +105,13 @@ public class RequestServiceJPA implements RequestService {
     public Optional<RequestDTO> updateRequestById(Integer requestId, RequestDTO requestDTO) {
         AtomicReference<Optional<RequestDTO>> atomicReference =new AtomicReference<>();
 
-        Optional<UserDTO> requesterDTO = userService.getUserByUserName(requestDTO.getRequester().getUsername());
+        Optional<UserUnsecureDTO> requesterDTO = userService.getUserByUserName(requestDTO.getRequester().getUsername());
 
         if (requesterDTO.isEmpty()) {
             return Optional.empty();
         }
 
-        User requester = userMapper.userDTOToUser(requesterDTO.get());
+        User requester = userMapper.userUnsecureDTOToUser(requesterDTO.get());
 
         requestRepository.findById(requestId).ifPresentOrElse(foundRequest -> {
             foundRequest.setTitle(requestDTO.getTitle());
@@ -130,13 +130,13 @@ public class RequestServiceJPA implements RequestService {
     public Optional<RequestDTO> updateRequestByIdAndRequester(Integer requestId, String requesterUsername, RequestRequesterDTO requestDTO) {
         AtomicReference<Optional<RequestDTO>> atomicReference = new AtomicReference<>();
 
-        Optional<UserDTO> requesterDTO = userService.getUserByUserName(requesterUsername);
+        Optional<UserUnsecureDTO> requesterDTO = userService.getUserByUserName(requesterUsername);
 
         if (requesterDTO.isEmpty()) {
             return Optional.empty();
         }
 
-        User requester = userMapper.userDTOToUser(requesterDTO.get());
+        User requester = userMapper.userUnsecureDTOToUser(requesterDTO.get());
 
         requestRepository.findByIdAndRequester(requestId, requester).ifPresentOrElse(foundRequest -> {
             foundRequest.setTitle(requestDTO.getTitle());
@@ -185,7 +185,7 @@ public class RequestServiceJPA implements RequestService {
         return pageSize;
     }
 
-    private Optional<UserDTO> getCurrentUserDTO(HttpServletRequest httpRequest) {
+    private Optional<UserUnsecureDTO> getCurrentUserDTO(HttpServletRequest httpRequest) {
         final String authHeader = httpRequest.getHeader("Authorization");
         final String jwt;
         final String username;
@@ -200,7 +200,7 @@ public class RequestServiceJPA implements RequestService {
                 .orElse(null);
     }
 
-    private Optional<UserDTO> getUserDTO(String username) {
+    private Optional<UserUnsecureDTO> getUserDTO(String username) {
         return Optional.ofNullable(userService.getUserByUserName(username))
                 .orElse(null);
     }

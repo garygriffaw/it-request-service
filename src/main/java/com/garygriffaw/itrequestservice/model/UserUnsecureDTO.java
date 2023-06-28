@@ -5,7 +5,7 @@ import lombok.Data;
 
 @Data
 @Builder
-public class UserDTO {
+public class UserUnsecureDTO {
     private Integer id;
 
     private String username;

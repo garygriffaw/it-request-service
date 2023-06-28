@@ -2,7 +2,7 @@ package com.garygriffaw.itrequestservice.services;
 
 import com.garygriffaw.itrequestservice.model.RequestDTO;
 import com.garygriffaw.itrequestservice.model.RequestRequesterDTO;
-import com.garygriffaw.itrequestservice.model.UserDTO;
+import com.garygriffaw.itrequestservice.model.UserUnsecureDTO;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.stereotype.Service;
@@ -19,13 +19,13 @@ public class RequestServiceImpl implements RequestService {
     public RequestServiceImpl() {
         this.requestMap = new HashMap<>();
 
-        UserDTO user1 = UserDTO.builder()
+        UserUnsecureDTO user1 = UserUnsecureDTO.builder()
                 .username("user1")
                 .firstname("John")
                 .lastname("Doe")
                 .build();
 
-        UserDTO user2 = UserDTO.builder()
+        UserUnsecureDTO user2 = UserUnsecureDTO.builder()
                 .username("user2")
                 .firstname("Jane")
                 .lastname("Smith")

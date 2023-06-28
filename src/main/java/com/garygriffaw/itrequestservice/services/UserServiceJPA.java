@@ -1,7 +1,7 @@
 package com.garygriffaw.itrequestservice.services;
 
 import com.garygriffaw.itrequestservice.mappers.UserMapper;
-import com.garygriffaw.itrequestservice.model.UserDTO;
+import com.garygriffaw.itrequestservice.model.UserUnsecureDTO;
 import com.garygriffaw.itrequestservice.repositories.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Primary;
@@ -17,8 +17,8 @@ public class UserServiceJPA implements UserService {
     private final UserMapper userMapper;
 
     @Override
-    public Optional<UserDTO> getUserByUserName(String username) {
-        return Optional.ofNullable(userMapper.userToUserDTO(userRepository.findByUsername(username)
+    public Optional<UserUnsecureDTO> getUserByUserName(String username) {
+        return Optional.ofNullable(userMapper.userToUserUnsecureDTO(userRepository.findByUsername(username)
                 .orElse(null)));
     }
 }

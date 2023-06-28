@@ -1,6 +1,6 @@
 package com.garygriffaw.itrequestservice.services;
 
-import com.garygriffaw.itrequestservice.model.UserDTO;
+import com.garygriffaw.itrequestservice.model.UserUnsecureDTO;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
@@ -10,12 +10,12 @@ import java.util.Optional;
 @Service
 public class UserServiceImpl implements UserService {
 
-    private Map<String, UserDTO> userMap;
+    private Map<String, UserUnsecureDTO> userMap;
 
     public UserServiceImpl() {
         this.userMap = new HashMap<>();
 
-        UserDTO user1 = UserDTO.builder()
+        UserUnsecureDTO user1 = UserUnsecureDTO.builder()
                 .id(1)
                 .username("user1")
                 .firstname("User 1")
@@ -23,7 +23,7 @@ public class UserServiceImpl implements UserService {
                 .build();
         userMap.put(user1.getUsername(), user1);
 
-        UserDTO user2 = UserDTO.builder()
+        UserUnsecureDTO user2 = UserUnsecureDTO.builder()
                 .id(2)
                 .username("user2")
                 .firstname("User 2")
@@ -33,7 +33,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Optional<UserDTO> getUserByUserName(String username) {
+    public Optional<UserUnsecureDTO> getUserByUserName(String username) {
         return Optional.of(userMap.get(username));
     }
 }
