@@ -85,16 +85,20 @@ public class RequestServiceJPA implements RequestService {
     }
 
     @Override
-    public RequestDTO saveNewRequest(RequestDTO requestDTO, String requesterUsername) {
+    public Optional<RequestDTO> saveNewRequest(RequestRequesterDTO requestRequesterDTO, String requesterUsername) {
         Optional<UserDTO> requesterDTO = userService.getUserByUserName(requesterUsername);
 
-//        if (requesterDTO.isEmpty()) {
-//            return Optional.empty();
-//        }
+        if (requesterDTO.isEmpty()) {
+            return Optional.empty();
+        }
 
-        requestDTO.setRequester(requesterDTO.get());
+        RequestDTO requestDTO = RequestDTO.builder()
+                .title(requestRequesterDTO.getTitle())
+                .description(requestRequesterDTO.getDescription())
+                .requester(requesterDTO.get())
+                .build();
 
-        return requestMapper.requestToRequestDTO(requestRepository.save(requestMapper.requestDTOToRequest(requestDTO)));
+        return Optional.of(requestMapper.requestToRequestDTO(requestRepository.save(requestMapper.requestDTOToRequest(requestDTO))));
     }
 
     @Override

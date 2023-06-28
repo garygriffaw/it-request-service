@@ -187,8 +187,8 @@ class RequestControllerTest {
         newRequest.setId(null);
         newRequest.setVersion(null);
 
-        given(requestService.saveNewRequest(any(RequestDTO.class), any()))
-                .willReturn(requestServiceImpl.listRequests(1, 25).getContent().get(1));
+        given(requestService.saveNewRequest(any(RequestRequesterDTO.class), any()))
+                .willReturn(Optional.of(requestServiceImpl.listRequests(1, 25).getContent().get(1)));
 
         mockMvc.perform(post(RequestController.REQUESTS_PATH)
                     .accept(MediaType.APPLICATION_JSON)
@@ -212,6 +212,23 @@ class RequestControllerTest {
                 .andReturn();
 
         System.out.println(mvcResult.getResponse().getContentAsString());
+    }
+
+    @WithMockUser(username = "abc")
+    @Test
+    void testCreateNewRequestForbidden() throws Exception {
+        RequestDTO newRequest = requestServiceImpl.listRequests(1, 25).getContent().get(0);
+        newRequest.setId(null);
+        newRequest.setVersion(null);
+
+        given(requestService.saveNewRequest(any(RequestRequesterDTO.class), any()))
+                .willReturn(Optional.empty());
+
+        mockMvc.perform(post(RequestController.REQUESTS_PATH)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(newRequest)))
+                .andExpect(status().isForbidden());
     }
 
     @WithMockUser(username = "abc", roles = "ADMIN")

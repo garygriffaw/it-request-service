@@ -91,7 +91,7 @@ public class RequestServiceImpl implements RequestService {
     }
 
     @Override
-    public RequestDTO saveNewRequest(RequestDTO requestDTO, String requesterUsername) {
+    public Optional<RequestDTO> saveNewRequest(RequestRequesterDTO requestDTO, String requesterUsername) {
         RequestDTO savedRequest = RequestDTO.builder()
                 .id(4)
                 .title(requestDTO.getTitle())
@@ -100,7 +100,7 @@ public class RequestServiceImpl implements RequestService {
 
         requestMap.put(savedRequest.getId(), savedRequest);
 
-        return savedRequest;
+        return Optional.of(savedRequest);
     }
 
     @Override

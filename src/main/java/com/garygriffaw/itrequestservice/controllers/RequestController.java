@@ -59,8 +59,9 @@ public class RequestController {
     }
 
     @PostMapping(REQUESTS_PATH)
-    public ResponseEntity saveNewRequest(@Validated @RequestBody RequestDTO requestDTO, Authentication authentication) {
-        RequestDTO savedRequest = requestService.saveNewRequest(requestDTO, authentication.getName());
+    public ResponseEntity saveNewRequest(@Validated @RequestBody RequestRequesterDTO requestDTO, Authentication authentication) {
+        RequestDTO savedRequest = requestService.saveNewRequest(requestDTO, authentication.getName())
+                .orElseThrow(ForbiddenException::new);
 
         HttpHeaders headers = new HttpHeaders();
         headers.add("Location", REQUESTS_PATH + "/" + savedRequest.getId().toString());

@@ -135,11 +135,11 @@ public class RequestControllerIT {
                 .andExpect(status().isForbidden());
     }
 
-    @WithMockUser(username = "test_user_2")
+    @WithMockUser(username = BootstrapData.TEST_USER_2)
     @Transactional
     @Test
     void testCreateNewRequest() throws Exception {
-        RequestDTO newRequest = RequestDTO.builder()
+        RequestRequesterDTO newRequest = RequestRequesterDTO.builder()
                 .title("testCreateNewRequest")
                 .description("This is a test of testCreateNewRequest")
                 .build();
@@ -152,10 +152,10 @@ public class RequestControllerIT {
                 .andExpect(header().exists("Location"));
     }
 
-    @WithMockUser(username = "test_user_2")
+    @WithMockUser(username = BootstrapData.TEST_USER_2)
     @Test
     void testCreateNewRequestTitleTooShort() throws Exception {
-        RequestDTO newRequest = RequestDTO.builder()
+        RequestRequesterDTO newRequest = RequestRequesterDTO.builder()
                 .title("test")
                 .description("This is a test of testCreateNewRequest")
                 .build();
@@ -166,6 +166,22 @@ public class RequestControllerIT {
                         .content(objectMapper.writeValueAsString(newRequest)))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.length()", is(1)));
+    }
+
+    @WithMockUser(username = "abc")
+    @Transactional
+    @Test
+    void testCreateNewRequestForbidden() throws Exception {
+        RequestRequesterDTO newRequest = RequestRequesterDTO.builder()
+                .title("testCreateNewRequest")
+                .description("This is a test of testCreateNewRequest")
+                .build();
+
+        mockMvc.perform(post(RequestController.REQUESTS_PATH)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(newRequest)))
+                .andExpect(status().isForbidden());
     }
 
     @WithMockUser(username = BootstrapData.TEST_USER_2, roles = "ADMIN")
