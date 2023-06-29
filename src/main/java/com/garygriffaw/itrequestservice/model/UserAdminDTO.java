@@ -1,25 +1,16 @@
-package com.garygriffaw.itrequestservice.entities;
+package com.garygriffaw.itrequestservice.model;
 
-import com.garygriffaw.itrequestservice.token.Token;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
-import java.util.*;
+import java.util.HashSet;
+import java.util.Set;
 
 @Data
 @Builder
-@NoArgsConstructor
-@AllArgsConstructor
-@Entity
-@Table(name = "_user")
-public class User {
-
-    @Id
-    @GeneratedValue
+public class UserAdminDTO {
     private Integer id;
 
     @NotBlank(message = "Username must not be blank.")
@@ -44,32 +35,10 @@ public class User {
 //            flags = Pattern.Flag.CASE_INSENSITIVE)
     private String email;
 
-//    @NotBlank(message = "Password must not be blank.")
-//    @NotNull(message = "Password must have a value.")
-    private String password;
-
-    @OneToMany(mappedBy = "user")
-    private List<Token> tokens;
-
-    @Builder.Default
-    @OneToMany(mappedBy = "requester")
-    private Set<Request> requests = new HashSet<>();
-
     @Builder.Default
     @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JoinTable(name = "users_roles",
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "role_id"))
-    private Set<Role> roles = new HashSet<>();
-
-
-    public void addRole(Role role) {
-        this.roles.add(role);
-        role.getUsers().add(this);
-    }
-
-    public void removeRole(Role role) {
-        this.roles.remove(role);
-        role.getUsers().remove(this);
-    }
+    private Set<RoleDTO> roles = new HashSet<>();
 }
