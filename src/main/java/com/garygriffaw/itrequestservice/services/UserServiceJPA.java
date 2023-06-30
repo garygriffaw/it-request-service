@@ -1,6 +1,5 @@
 package com.garygriffaw.itrequestservice.services;
 
-import com.garygriffaw.itrequestservice.entities.Request;
 import com.garygriffaw.itrequestservice.entities.User;
 import com.garygriffaw.itrequestservice.mappers.UserMapper;
 import com.garygriffaw.itrequestservice.model.UserAdminDTO;
@@ -27,7 +26,7 @@ public class UserServiceJPA implements UserService {
     private static final int MAX_PAGE_SIZE = 1000;
 
     @Override
-    public Optional<UserUnsecureDTO> getUserByUserName(String username) {
+    public Optional<UserUnsecureDTO> getUserByUsernameUnsec(String username) {
         return Optional.ofNullable(userMapper.userToUserUnsecureDTO(userRepository.findByUsername(username)
                 .orElse(null)));
     }
@@ -41,6 +40,12 @@ public class UserServiceJPA implements UserService {
         userPage = userRepository.findAll(pageRequest);
 
         return userPage.map(userMapper::userToUserAdminDTO);
+    }
+
+    @Override
+    public Optional<UserAdminDTO> getUserByUsername(String username) {
+        return Optional.ofNullable(userMapper.userToUserAdminDTO(userRepository.findByUsername(username)
+                .orElse(null)));
     }
 
     private PageRequest buildPageRequest(Integer pageNumber, Integer pageSize) {

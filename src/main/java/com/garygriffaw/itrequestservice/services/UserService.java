@@ -8,7 +8,9 @@ import java.util.Optional;
 
 public interface UserService {
 
-    Optional<UserUnsecureDTO> getUserByUserName(String username);
+    Optional<UserUnsecureDTO> getUserByUsernameUnsec(String username);
 
     Page<UserAdminDTO> listUsers(Integer pageNumber, Integer pageSize);
+
+    Optional<UserAdminDTO> getUserByUsername(String username);
 }

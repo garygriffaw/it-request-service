@@ -52,7 +52,7 @@ public class RequestServiceJPA implements RequestService {
 
         Page<Request> requestPage;
 
-        Optional<UserUnsecureDTO> requesterDTO = userService.getUserByUserName(requesterUsername);
+        Optional<UserUnsecureDTO> requesterDTO = userService.getUserByUsernameUnsec(requesterUsername);
 
         if (requesterDTO.isEmpty()) {
             return Page.empty();
@@ -72,7 +72,7 @@ public class RequestServiceJPA implements RequestService {
 
     @Override
     public Optional<RequestDTO> getRequestByIdAndRequester(Integer requestId, String requesterUsername) {
-        Optional<UserUnsecureDTO> requesterDTO = userService.getUserByUserName(requesterUsername);
+        Optional<UserUnsecureDTO> requesterDTO = userService.getUserByUsernameUnsec(requesterUsername);
 
         if (requesterDTO.isEmpty()) {
             return Optional.empty();
@@ -86,7 +86,7 @@ public class RequestServiceJPA implements RequestService {
 
     @Override
     public Optional<RequestDTO> saveNewRequest(RequestRequesterDTO requestRequesterDTO, String requesterUsername) {
-        Optional<UserUnsecureDTO> requesterDTO = userService.getUserByUserName(requesterUsername);
+        Optional<UserUnsecureDTO> requesterDTO = userService.getUserByUsernameUnsec(requesterUsername);
 
         if (requesterDTO.isEmpty()) {
             return Optional.empty();
@@ -105,7 +105,7 @@ public class RequestServiceJPA implements RequestService {
     public Optional<RequestDTO> updateRequestById(Integer requestId, RequestDTO requestDTO) {
         AtomicReference<Optional<RequestDTO>> atomicReference =new AtomicReference<>();
 
-        Optional<UserUnsecureDTO> requesterDTO = userService.getUserByUserName(requestDTO.getRequester().getUsername());
+        Optional<UserUnsecureDTO> requesterDTO = userService.getUserByUsernameUnsec(requestDTO.getRequester().getUsername());
 
         if (requesterDTO.isEmpty()) {
             return Optional.empty();
@@ -130,7 +130,7 @@ public class RequestServiceJPA implements RequestService {
     public Optional<RequestDTO> updateRequestByIdAndRequester(Integer requestId, String requesterUsername, RequestRequesterDTO requestDTO) {
         AtomicReference<Optional<RequestDTO>> atomicReference = new AtomicReference<>();
 
-        Optional<UserUnsecureDTO> requesterDTO = userService.getUserByUserName(requesterUsername);
+        Optional<UserUnsecureDTO> requesterDTO = userService.getUserByUsernameUnsec(requesterUsername);
 
         if (requesterDTO.isEmpty()) {
             return Optional.empty();
@@ -196,12 +196,12 @@ public class RequestServiceJPA implements RequestService {
 
         jwt = authHeader.substring(7);
 
-        return Optional.ofNullable(userService.getUserByUserName(jwtService.extractUsername(jwt)))
+        return Optional.ofNullable(userService.getUserByUsernameUnsec(jwtService.extractUsername(jwt)))
                 .orElse(null);
     }
 
     private Optional<UserUnsecureDTO> getUserDTO(String username) {
-        return Optional.ofNullable(userService.getUserByUserName(username))
+        return Optional.ofNullable(userService.getUserByUsernameUnsec(username))
                 .orElse(null);
     }
 }

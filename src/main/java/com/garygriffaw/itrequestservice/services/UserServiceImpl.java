@@ -20,13 +20,18 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Optional<UserUnsecureDTO> getUserByUserName(String username) {
+    public Optional<UserUnsecureDTO> getUserByUsernameUnsec(String username) {
         return Optional.of(userUnsecureDTOMap.get(username));
     }
 
     @Override
     public Page<UserAdminDTO> listUsers(Integer pageNumber, Integer pageSize) {
         return new PageImpl<>(new ArrayList<>(userAdminDTOMap.values()));
+    }
+
+    @Override
+    public Optional<UserAdminDTO> getUserByUsername(String username) {
+        return Optional.of(userAdminDTOMap.get(username));
     }
 
     private void loadUserUnsecureDTOMap() {

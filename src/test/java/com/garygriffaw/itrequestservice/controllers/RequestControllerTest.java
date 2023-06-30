@@ -18,14 +18,11 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.AuthenticationProvider;
-import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
 import org.springframework.security.web.authentication.logout.LogoutHandler;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
-import java.time.Instant;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -33,7 +30,6 @@ import static org.hamcrest.core.Is.is;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -59,9 +55,6 @@ class RequestControllerTest {
     AuthenticationProvider authenticationProvider;
 
     @MockBean
-    JwtDecoder jwtDecoder;
-
-    @MockBean
     TokenRepository tokenRepository;
 
     @MockBean
@@ -72,15 +65,6 @@ class RequestControllerTest {
     @Captor
     ArgumentCaptor<Integer> requestIdArgumentCaptor;
 
-    public static final SecurityMockMvcRequestPostProcessors.JwtRequestPostProcessor jwtRequestPostProcessor =
-            jwt().jwt(jwt -> {
-                jwt.claims(claims -> {
-                            claims.put("scope", "message-read");
-                            claims.put("scope", "message-write");
-                        })
-                        .subject("messaging-client")
-                        .notBefore(Instant.now().minusSeconds(5l));
-            });
 
     @BeforeEach
     void setUp() {

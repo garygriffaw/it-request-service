@@ -1,5 +1,6 @@
 package com.garygriffaw.itrequestservice.controllers;
 
+import com.garygriffaw.itrequestservice.entities.User;
 import com.garygriffaw.itrequestservice.repositories.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -49,6 +50,35 @@ public class UserControllerIT {
     @Test
     void testListUsersForbidden() throws Exception {
         mockMvc.perform(get(UserController.USERS_PATH)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isForbidden());
+    }
+
+    @WithMockUser(username = "abc", roles = "ADMIN")
+    @Test
+    void testGetUserByUsername() throws Exception {
+        User testUser = userRepository.findAll().get(0);
+
+        mockMvc.perform(get(UserController.USERS_PATH_USERNAME, testUser.getUsername())
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.username", is(testUser.getUsername())))
+                .andExpect(jsonPath("$.email", is(testUser.getEmail())));
+    }
+
+    @WithMockUser(username = "abc", roles = "ADMIN")
+    @Test
+    void testGetUserByUsernameNotFound() throws Exception {
+        mockMvc.perform(get(UserController.USERS_PATH_USERNAME, "abc")
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound());
+    }
+
+    @WithMockUser(username = "abc", roles = "USER")
+    @Test
+    void testGetUserByUsernameForbidden() throws Exception {
+        mockMvc.perform(get(UserController.USERS_PATH_USERNAME, "abc")
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isForbidden());
     }
