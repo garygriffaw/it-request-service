@@ -34,6 +34,17 @@ public class UserServiceImpl implements UserService {
         return Optional.of(userAdminDTOMap.get(username));
     }
 
+    @Override
+    public Optional<UserAdminDTO> updateUserByUsername(String username, UserAdminDTO userDTO) {
+        UserAdminDTO existing = userAdminDTOMap.get(username);
+        existing.setFirstname(userDTO.getFirstname());
+        existing.setLastname(userDTO.getLastname());
+        existing.setEmail(userDTO.getEmail());
+        existing.setRoles(userDTO.getRoles());
+
+        return Optional.of(existing);
+    }
+
     private void loadUserUnsecureDTOMap() {
         this.userUnsecureDTOMap = new HashMap<>();
 

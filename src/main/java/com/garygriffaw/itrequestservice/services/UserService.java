@@ -13,4 +13,6 @@ public interface UserService {
     Page<UserAdminDTO> listUsers(Integer pageNumber, Integer pageSize);
 
     Optional<UserAdminDTO> getUserByUsername(String username);
+
+    Optional<UserAdminDTO> updateUserByUsername(String username, UserAdminDTO userDTO);
 }

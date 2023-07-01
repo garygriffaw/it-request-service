@@ -1,5 +1,6 @@
 package com.garygriffaw.itrequestservice.controllers;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.garygriffaw.itrequestservice.config.JwtService;
 import com.garygriffaw.itrequestservice.config.SecurityConfiguration;
 import com.garygriffaw.itrequestservice.model.UserAdminDTO;
@@ -23,6 +24,7 @@ import java.util.Optional;
 import static org.hamcrest.core.Is.is;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.verify;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -47,6 +49,9 @@ class UserControllerTest {
 
     @MockBean
     LogoutHandler logoutHandler;
+
+    @Autowired
+    ObjectMapper objectMapper;
 
 
     UserServiceImpl userServiceImpl;
@@ -82,7 +87,7 @@ class UserControllerTest {
     void testGetUserByUsername() throws Exception {
         UserAdminDTO testUser = userServiceImpl.listUsers(1, 25).getContent().get(0);
 
-        given(userService.getUserByUsername(testUser.getUsername()))
+        given(userService.getUserByUsername(any()))
                 .willReturn(Optional.of(testUser));
 
         mockMvc.perform(get(UserController.USERS_PATH_USERNAME, testUser.getUsername())
@@ -106,6 +111,50 @@ class UserControllerTest {
     void testGetUserByUsernameForbidden() throws Exception {
         mockMvc.perform(get(UserController.USERS_PATH_USERNAME, "abc")
                         .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isForbidden());
+    }
+
+    @WithMockUser(username = "abc", roles = "ADMIN")
+    @Test
+    void testUpdateUser() throws Exception {
+        UserAdminDTO testUser = userServiceImpl.listUsers(1, 25).getContent().get(0);
+
+        given(userService.updateUserByUsername(any(), any()))
+                .willReturn(Optional.of(testUser));
+
+        mockMvc.perform(put(UserController.USERS_PATH_USERNAME, testUser.getUsername())
+                        .accept(MediaType.APPLICATION_JSON)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(testUser)))
+                .andExpect(status().isNoContent());
+
+        verify(userService).updateUserByUsername(any(String.class), any(UserAdminDTO.class));
+    }
+
+    @WithMockUser(username = "abc", roles = "ADMIN")
+    @Test
+    void testUpdateUserNotFound() throws Exception {
+        UserAdminDTO testUser = userServiceImpl.listUsers(1, 25).getContent().get(0);
+
+        given(userService.updateUserByUsername(any(), any()))
+                .willReturn(Optional.empty());
+
+        mockMvc.perform(put(UserController.USERS_PATH_USERNAME, testUser.getUsername())
+                        .accept(MediaType.APPLICATION_JSON)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(testUser)))
+                .andExpect(status().isNotFound());
+    }
+
+    @WithMockUser(username = "abc", roles = "USER")
+    @Test
+    void testUpdateUserForbidden() throws Exception {
+        UserAdminDTO testUser = userServiceImpl.listUsers(1, 25).getContent().get(0);
+
+        mockMvc.perform(put(UserController.USERS_PATH_USERNAME, testUser.getUsername())
+                        .accept(MediaType.APPLICATION_JSON)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(testUser)))
                 .andExpect(status().isForbidden());
     }
 }

@@ -4,11 +4,11 @@ import com.garygriffaw.itrequestservice.model.UserAdminDTO;
 import com.garygriffaw.itrequestservice.services.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
 
 @RequiredArgsConstructor
 @RestController
@@ -33,5 +33,16 @@ public class UserController {
     @PreAuthorize("hasRole('ADMIN')")
     public UserAdminDTO getUserByUsername(@PathVariable("username") String username) {
         return userService.getUserByUsername(username).orElseThrow(NotFoundException::new);
+    }
+
+    @PutMapping(USERS_PATH_USERNAME)
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity updateUserByUsername(@PathVariable("username") String username,
+                                               @Validated @RequestBody UserAdminDTO userDTO) {
+        if (userService.updateUserByUsername(username, userDTO).isEmpty()) {
+            throw new NotFoundException();
+        }
+
+        return new ResponseEntity(HttpStatus.NO_CONTENT);
     }
 }

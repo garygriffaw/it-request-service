@@ -13,6 +13,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicReference;
 
 @Service
 @Primary
@@ -46,6 +47,25 @@ public class UserServiceJPA implements UserService {
     public Optional<UserAdminDTO> getUserByUsername(String username) {
         return Optional.ofNullable(userMapper.userToUserAdminDTO(userRepository.findByUsername(username)
                 .orElse(null)));
+    }
+
+    @Override
+    public Optional<UserAdminDTO> updateUserByUsername(String username, UserAdminDTO userDTO) {
+        AtomicReference<Optional<UserAdminDTO>> atomicReference = new AtomicReference<>();
+
+        User user = userMapper.userAdminDTOToUser(userDTO);
+
+        userRepository.findByUsername(username).ifPresentOrElse(foundUser -> {
+            foundUser.setFirstname(user.getFirstname());
+            foundUser.setLastname(user.getLastname());
+            foundUser.setEmail(user.getEmail());
+            foundUser.setRoles(user.getRoles());
+            atomicReference.set(Optional.of(userMapper.userToUserAdminDTO(userRepository.save(foundUser))));
+        }, () -> {
+            atomicReference.set(Optional.empty());
+        });
+
+        return atomicReference.get();
     }
 
     private PageRequest buildPageRequest(Integer pageNumber, Integer pageSize) {
