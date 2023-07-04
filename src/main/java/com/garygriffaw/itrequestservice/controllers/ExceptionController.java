@@ -16,4 +16,9 @@ public class ExceptionController {
     public ResponseEntity handleForbiddenException() {
         return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
     }
+
+    @ExceptionHandler(UnprocessableEntityException.class)
+    public ResponseEntity handleUnprocessableEntityException() {
+        return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).build();
+    }
 }

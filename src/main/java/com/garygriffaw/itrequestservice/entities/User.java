@@ -25,7 +25,7 @@ public class User {
     @NotBlank(message = "Username must not be blank.")
     @NotNull(message = "Username must have a value.")
     @Size(min = 5, max = 20, message = "Username must be between 5 and 20 characters.")
-    @Column(length = 20)
+    @Column(length = 20, unique = true)
     private String username;
 
     @NotBlank(message = "First Name must not be blank.")

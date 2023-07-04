@@ -1,6 +1,7 @@
 package com.garygriffaw.itrequestservice.auth;
 
 import com.garygriffaw.itrequestservice.config.JwtService;
+import com.garygriffaw.itrequestservice.controllers.UnprocessableEntityException;
 import com.garygriffaw.itrequestservice.entities.Role;
 import com.garygriffaw.itrequestservice.enums.RoleEnum;
 import com.garygriffaw.itrequestservice.repositories.RoleRepository;
@@ -28,6 +29,10 @@ public class AuthenticationService {
     private final UserDetailsServiceImpl userDetailsService;
 
     public AuthenticationResponse register(RegisterRequest request) {
+        if (userRepository.existsUserByUsername(request.getUsername())) {
+            throw new UnprocessableEntityException();
+        }
+
         User user = User.builder()
                 .username(request.getUsername())
                 .firstname(request.getFirstname())
