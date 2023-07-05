@@ -31,8 +31,9 @@ public class UserAdminDTO {
     @Column(length = 100)
     private String lastname;
 
-//    @Email(regexp = "[a-z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,3}",
-//            flags = Pattern.Flag.CASE_INSENSITIVE)
+    @NotNull(message = "Email must have a value.")
+    @Email(regexp = "[a-z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,3}",
+            flags = Pattern.Flag.CASE_INSENSITIVE)
     private String email;
 
     @Builder.Default

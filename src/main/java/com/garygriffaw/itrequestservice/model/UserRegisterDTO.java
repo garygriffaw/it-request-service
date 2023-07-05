@@ -1,9 +1,7 @@
 package com.garygriffaw.itrequestservice.model;
 
 import jakarta.persistence.Column;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -32,6 +30,9 @@ public class UserRegisterDTO {
     @Column(length = 100)
     private String lastname;
 
+    @NotNull(message = "Email must have a value.")
+    @Email(regexp = "[a-z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,3}",
+            flags = Pattern.Flag.CASE_INSENSITIVE)
     private String email;
 
     private String password;

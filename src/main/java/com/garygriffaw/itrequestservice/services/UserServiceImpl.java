@@ -53,6 +53,7 @@ public class UserServiceImpl implements UserService {
                 .username("user1")
                 .firstname("User 1")
                 .lastname("Smith")
+                .email("a@a.aa")
                 .build();
         userUnsecureDTOMap.put(userUnsecureDTO1.getUsername(), userUnsecureDTO1);
 
@@ -61,6 +62,7 @@ public class UserServiceImpl implements UserService {
                 .username("user2")
                 .firstname("User 2")
                 .lastname("Jones")
+                .email("a@a.aa")
                 .build();
         userUnsecureDTOMap.put(userUnsecureDTO2.getUsername(), userUnsecureDTO2);
     }
@@ -73,6 +75,7 @@ public class UserServiceImpl implements UserService {
                 .username("user1")
                 .firstname("User 1")
                 .lastname("Smith")
+                .email("a@a.aa")
                 .build();
         userAdminDTOMap.put(userAdminDTO1.getUsername(), userAdminDTO1);
 
@@ -81,6 +84,7 @@ public class UserServiceImpl implements UserService {
                 .username("user2")
                 .firstname("User 2")
                 .lastname("Jones")
+                .email("a@a.aa")
                 .build();
         userAdminDTOMap.put(userAdminDTO2.getUsername(), userAdminDTO2);
     }

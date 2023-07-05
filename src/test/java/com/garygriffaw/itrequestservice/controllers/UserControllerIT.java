@@ -196,6 +196,6 @@ public class UserControllerIT {
     }
 
     private String getUpdatedString(String string) {
-        return string + " updated";
+        return "a" + string;
     }
 }

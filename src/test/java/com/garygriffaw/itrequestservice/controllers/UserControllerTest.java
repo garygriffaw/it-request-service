@@ -133,6 +133,38 @@ class UserControllerTest {
 
     @WithMockUser(username = "abc", roles = "ADMIN")
     @Test
+    void testUpdateUserUsernameTooShort() throws Exception {
+        UserAdminDTO testUser = userServiceImpl.listUsers(1, 25).getContent().get(0);
+        testUser.setUsername("abcd");
+
+        given(userService.updateUserByUsername(any(), any()))
+                .willReturn(Optional.of(testUser));
+
+        mockMvc.perform(put(UserController.USERS_PATH_USERNAME, testUser.getUsername())
+                        .accept(MediaType.APPLICATION_JSON)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(testUser)))
+                .andExpect(status().isBadRequest());
+    }
+
+    @WithMockUser(username = "abc", roles = "ADMIN")
+    @Test
+    void testUpdateUserEmailInvalid() throws Exception {
+        UserAdminDTO testUser = userServiceImpl.listUsers(1, 25).getContent().get(0);
+        testUser.setEmail("aaa");
+
+        given(userService.updateUserByUsername(any(), any()))
+                .willReturn(Optional.of(testUser));
+
+        mockMvc.perform(put(UserController.USERS_PATH_USERNAME, testUser.getUsername())
+                        .accept(MediaType.APPLICATION_JSON)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(testUser)))
+                .andExpect(status().isBadRequest());
+    }
+
+    @WithMockUser(username = "abc", roles = "ADMIN")
+    @Test
     void testUpdateUserNotFound() throws Exception {
         UserAdminDTO testUser = userServiceImpl.listUsers(1, 25).getContent().get(0);
 

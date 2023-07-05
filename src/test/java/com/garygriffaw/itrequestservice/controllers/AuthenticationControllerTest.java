@@ -54,6 +54,7 @@ class AuthenticationControllerTest {
                 .username("abcde")
                 .firstname("a")
                 .lastname("b")
+                .email("a@a.aa")
                 .build();
 
         UserAuthenticationResponseDTO authenticationResponse = UserAuthenticationResponseDTO.builder()
@@ -75,6 +76,29 @@ class AuthenticationControllerTest {
                 .username("abcd")
                 .firstname("a")
                 .lastname("b")
+                .email("a@a.aa")
+                .build();
+
+        UserAuthenticationResponseDTO authenticationResponse = UserAuthenticationResponseDTO.builder()
+                .build();
+
+        given(authenticationService.register(any(UserRegisterDTO.class)))
+                .willReturn(authenticationResponse);
+
+        mockMvc.perform(post(AuthenticationController.REGISTER)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(userRegisterDTO)))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void testRegisterInvalidEmail() throws Exception {
+        UserRegisterDTO userRegisterDTO = UserRegisterDTO.builder()
+                .username("abcde")
+                .firstname("a")
+                .lastname("b")
+                .email("a@a")
                 .build();
 
         UserAuthenticationResponseDTO authenticationResponse = UserAuthenticationResponseDTO.builder()
