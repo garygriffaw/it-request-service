@@ -1,4 +1,4 @@
-package com.garygriffaw.itrequestservice.auth;
+package com.garygriffaw.itrequestservice.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,7 +9,6 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class AuthenticationRequest {
-    private String username;
-    private String password;
+public class UserAuthenticationResponseDTO {
+    private String token;
 }

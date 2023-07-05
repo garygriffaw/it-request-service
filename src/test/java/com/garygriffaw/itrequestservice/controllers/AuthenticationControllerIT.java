@@ -1,6 +1,9 @@
-package com.garygriffaw.itrequestservice.auth;
+package com.garygriffaw.itrequestservice.controllers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.garygriffaw.itrequestservice.model.UserAuthenticationDTO;
+import com.garygriffaw.itrequestservice.model.UserRegisterDTO;
+import com.garygriffaw.itrequestservice.services.AuthenticationService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,7 +45,7 @@ class AuthenticationControllerIT {
     @Rollback
     @Test
     void testRegister() throws Exception {
-        RegisterRequest registerRequest = RegisterRequest.builder()
+        UserRegisterDTO userRegisterDTO = UserRegisterDTO.builder()
                 .username("test1")
                 .firstname("First")
                 .lastname("Last")
@@ -53,7 +56,7 @@ class AuthenticationControllerIT {
         mockMvc.perform(post(AuthenticationController.REGISTER)
                         .accept(MediaType.APPLICATION_JSON)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(registerRequest)))
+                        .content(objectMapper.writeValueAsString(userRegisterDTO)))
                 .andExpect(status().isOk());
     }
 
@@ -61,7 +64,7 @@ class AuthenticationControllerIT {
     @Rollback
     @Test
     void testRegisterDuplicateUsername() throws Exception {
-        RegisterRequest registerRequest1 = RegisterRequest.builder()
+        UserRegisterDTO userRegisterDTO1 = UserRegisterDTO.builder()
                 .username("test1")
                 .firstname("First")
                 .lastname("Last")
@@ -72,10 +75,10 @@ class AuthenticationControllerIT {
         mockMvc.perform(post(AuthenticationController.REGISTER)
                         .accept(MediaType.APPLICATION_JSON)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(registerRequest1)))
+                        .content(objectMapper.writeValueAsString(userRegisterDTO1)))
                 .andExpect(status().isOk());
 
-        RegisterRequest registerRequest2 = RegisterRequest.builder()
+        UserRegisterDTO userRegisterDTO2 = UserRegisterDTO.builder()
                 .username("test1")
                 .firstname("First2")
                 .lastname("Last2")
@@ -86,7 +89,7 @@ class AuthenticationControllerIT {
         mockMvc.perform(post(AuthenticationController.REGISTER)
                         .accept(MediaType.APPLICATION_JSON)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(registerRequest2)))
+                        .content(objectMapper.writeValueAsString(userRegisterDTO2)))
                 .andExpect(status().isUnprocessableEntity());
     }
 
@@ -94,7 +97,7 @@ class AuthenticationControllerIT {
     @Rollback
     @Test
     void testAuthenticate() throws Exception {
-        RegisterRequest registerRequest = RegisterRequest.builder()
+        UserRegisterDTO userRegisterDTO = UserRegisterDTO.builder()
                 .username("test1")
                 .firstname("First")
                 .lastname("Last")
@@ -105,10 +108,10 @@ class AuthenticationControllerIT {
         mockMvc.perform(post(AuthenticationController.REGISTER)
                         .accept(MediaType.APPLICATION_JSON)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(registerRequest)))
+                        .content(objectMapper.writeValueAsString(userRegisterDTO)))
                 .andExpect(status().isOk());
 
-        AuthenticationRequest authenticationRequest = AuthenticationRequest.builder()
+        UserAuthenticationDTO userAuthenticationDTO = UserAuthenticationDTO.builder()
                 .username("test1")
                 .password("abcd")
                 .build();
@@ -116,7 +119,7 @@ class AuthenticationControllerIT {
         mockMvc.perform(post(AuthenticationController.AUTHENTICATE)
                         .accept(MediaType.APPLICATION_JSON)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(authenticationRequest)))
+                        .content(objectMapper.writeValueAsString(userAuthenticationDTO)))
                 .andExpect(status().isOk());
     }
 
@@ -124,7 +127,7 @@ class AuthenticationControllerIT {
     @Rollback
     @Test
     void testAuthenticateWrongPassword() throws Exception {
-        RegisterRequest registerRequest = RegisterRequest.builder()
+        UserRegisterDTO userRegisterDTO = UserRegisterDTO.builder()
                 .username("test1")
                 .firstname("First")
                 .lastname("Last")
@@ -135,10 +138,10 @@ class AuthenticationControllerIT {
         mockMvc.perform(post(AuthenticationController.REGISTER)
                         .accept(MediaType.APPLICATION_JSON)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(registerRequest)))
+                        .content(objectMapper.writeValueAsString(userRegisterDTO)))
                 .andExpect(status().isOk());
 
-        AuthenticationRequest authenticationRequest = AuthenticationRequest.builder()
+        UserAuthenticationDTO userAuthenticationDTO = UserAuthenticationDTO.builder()
                 .username("test1")
                 .password("abcf")
                 .build();
@@ -146,13 +149,13 @@ class AuthenticationControllerIT {
         mockMvc.perform(post(AuthenticationController.AUTHENTICATE)
                         .accept(MediaType.APPLICATION_JSON)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(authenticationRequest)))
+                        .content(objectMapper.writeValueAsString(userAuthenticationDTO)))
                 .andExpect(status().isForbidden());
     }
 
     @Test
     void testAuthenticateWrongUsername() throws Exception {
-        AuthenticationRequest authenticationRequest = AuthenticationRequest.builder()
+        UserAuthenticationDTO userAuthenticationDTO = UserAuthenticationDTO.builder()
                 .username("test9999")
                 .password("abcd")
                 .build();
@@ -160,7 +163,7 @@ class AuthenticationControllerIT {
         mockMvc.perform(post(AuthenticationController.AUTHENTICATE)
                         .accept(MediaType.APPLICATION_JSON)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(authenticationRequest)))
+                        .content(objectMapper.writeValueAsString(userAuthenticationDTO)))
                 .andExpect(status().isForbidden());
     }
 }

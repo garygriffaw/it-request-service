@@ -1,11 +1,13 @@
-package com.garygriffaw.itrequestservice.auth;
+package com.garygriffaw.itrequestservice.services;
 
 import com.garygriffaw.itrequestservice.config.JwtService;
 import com.garygriffaw.itrequestservice.controllers.UnprocessableEntityException;
 import com.garygriffaw.itrequestservice.entities.Role;
 import com.garygriffaw.itrequestservice.enums.RoleEnum;
+import com.garygriffaw.itrequestservice.model.UserAuthenticationResponseDTO;
+import com.garygriffaw.itrequestservice.model.UserAuthenticationDTO;
+import com.garygriffaw.itrequestservice.model.UserRegisterDTO;
 import com.garygriffaw.itrequestservice.repositories.RoleRepository;
-import com.garygriffaw.itrequestservice.services.UserDetailsServiceImpl;
 import com.garygriffaw.itrequestservice.token.Token;
 import com.garygriffaw.itrequestservice.token.TokenRepository;
 import com.garygriffaw.itrequestservice.token.TokenType;
@@ -28,7 +30,7 @@ public class AuthenticationService {
     private final AuthenticationManager authenticationManager;
     private final UserDetailsServiceImpl userDetailsService;
 
-    public AuthenticationResponse register(RegisterRequest request) {
+    public UserAuthenticationResponseDTO register(UserRegisterDTO request) {
         if (userRepository.existsUserByUsername(request.getUsername())) {
             throw new UnprocessableEntityException();
         }
@@ -49,7 +51,7 @@ public class AuthenticationService {
         return getAuthenticationResponse(savedUser);
     }
 
-    public AuthenticationResponse authenticate(AuthenticationRequest request) {
+    public UserAuthenticationResponseDTO authenticate(UserAuthenticationDTO request) {
         authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
                 request.getUsername(), request.getPassword()));
 
@@ -58,13 +60,13 @@ public class AuthenticationService {
         return getAuthenticationResponse(user);
     }
 
-    private AuthenticationResponse getAuthenticationResponse(User user) {
+    private UserAuthenticationResponseDTO getAuthenticationResponse(User user) {
         revokeAllValidUserTokens(user);
 
         String jwtToken = jwtService.generateToken(userDetailsService.getUserDetailsUser(user));
         saveUserToken(user, jwtToken);
 
-        return AuthenticationResponse.builder()
+        return UserAuthenticationResponseDTO.builder()
                 .token(jwtToken)
                 .build();
     }

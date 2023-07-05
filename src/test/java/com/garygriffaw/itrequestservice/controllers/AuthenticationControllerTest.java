@@ -1,8 +1,12 @@
-package com.garygriffaw.itrequestservice.auth;
+package com.garygriffaw.itrequestservice.controllers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.garygriffaw.itrequestservice.config.JwtService;
 import com.garygriffaw.itrequestservice.config.SecurityConfiguration;
+import com.garygriffaw.itrequestservice.model.UserAuthenticationResponseDTO;
+import com.garygriffaw.itrequestservice.model.UserAuthenticationDTO;
+import com.garygriffaw.itrequestservice.model.UserRegisterDTO;
+import com.garygriffaw.itrequestservice.services.AuthenticationService;
 import com.garygriffaw.itrequestservice.token.TokenRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,37 +50,37 @@ class AuthenticationControllerTest {
 
     @Test
     void testRegister() throws Exception {
-        RegisterRequest registerRequest = RegisterRequest.builder()
+        UserRegisterDTO userRegisterDTO = UserRegisterDTO.builder()
                 .build();
 
-        AuthenticationResponse authenticationResponse = AuthenticationResponse.builder()
+        UserAuthenticationResponseDTO authenticationResponse = UserAuthenticationResponseDTO.builder()
                 .build();
 
-        given(authenticationService.register(any(RegisterRequest.class)))
+        given(authenticationService.register(any(UserRegisterDTO.class)))
                 .willReturn(authenticationResponse);
 
         mockMvc.perform(post(AuthenticationController.REGISTER)
                         .accept(MediaType.APPLICATION_JSON)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(registerRequest)))
+                        .content(objectMapper.writeValueAsString(userRegisterDTO)))
                 .andExpect(status().isOk());
     }
 
     @Test
     void testAuthenticate() throws Exception {
-        AuthenticationRequest authenticationRequest = AuthenticationRequest.builder()
+        UserAuthenticationDTO userAuthenticationDTO = UserAuthenticationDTO.builder()
                 .build();
 
-        AuthenticationResponse authenticationResponse = AuthenticationResponse.builder()
+        UserAuthenticationResponseDTO authenticationResponse = UserAuthenticationResponseDTO.builder()
                 .build();
 
-        given(authenticationService.authenticate(any(AuthenticationRequest.class)))
+        given(authenticationService.authenticate(any(UserAuthenticationDTO.class)))
                 .willReturn(authenticationResponse);
 
         mockMvc.perform(post(AuthenticationController.AUTHENTICATE)
                         .accept(MediaType.APPLICATION_JSON)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(authenticationRequest)))
+                        .content(objectMapper.writeValueAsString(userAuthenticationDTO)))
                 .andExpect(status().isOk());
     }
 }

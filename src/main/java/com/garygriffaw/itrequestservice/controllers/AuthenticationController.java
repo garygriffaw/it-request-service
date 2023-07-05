@@ -1,10 +1,13 @@
-package com.garygriffaw.itrequestservice.auth;
+package com.garygriffaw.itrequestservice.controllers;
 
+import com.garygriffaw.itrequestservice.services.AuthenticationService;
+import com.garygriffaw.itrequestservice.model.UserAuthenticationResponseDTO;
+import com.garygriffaw.itrequestservice.model.UserAuthenticationDTO;
+import com.garygriffaw.itrequestservice.model.UserRegisterDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -20,12 +23,12 @@ public class AuthenticationController {
     private final AuthenticationService authenticationService;
 
     @PostMapping(REGISTER)
-    public ResponseEntity<AuthenticationResponse> register(@RequestBody RegisterRequest request) {
+    public ResponseEntity<UserAuthenticationResponseDTO> register(@RequestBody UserRegisterDTO request) {
         return ResponseEntity.ok(authenticationService.register(request));
     }
 
     @PostMapping(AUTHENTICATE)
-    public ResponseEntity<AuthenticationResponse> authenticate(@RequestBody AuthenticationRequest request) {
+    public ResponseEntity<UserAuthenticationResponseDTO> authenticate(@RequestBody UserAuthenticationDTO request) {
         return ResponseEntity.ok(authenticationService.authenticate(request));
     }
 }
