@@ -51,6 +51,9 @@ class AuthenticationControllerTest {
     @Test
     void testRegister() throws Exception {
         UserRegisterDTO userRegisterDTO = UserRegisterDTO.builder()
+                .username("abcde")
+                .firstname("a")
+                .lastname("b")
                 .build();
 
         UserAuthenticationResponseDTO authenticationResponse = UserAuthenticationResponseDTO.builder()
@@ -64,6 +67,27 @@ class AuthenticationControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(userRegisterDTO)))
                 .andExpect(status().isOk());
+    }
+
+    @Test
+    void testRegisterUsernameTooShort() throws Exception {
+        UserRegisterDTO userRegisterDTO = UserRegisterDTO.builder()
+                .username("abcd")
+                .firstname("a")
+                .lastname("b")
+                .build();
+
+        UserAuthenticationResponseDTO authenticationResponse = UserAuthenticationResponseDTO.builder()
+                .build();
+
+        given(authenticationService.register(any(UserRegisterDTO.class)))
+                .willReturn(authenticationResponse);
+
+        mockMvc.perform(post(AuthenticationController.REGISTER)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(userRegisterDTO)))
+                .andExpect(status().isBadRequest());
     }
 
     @Test

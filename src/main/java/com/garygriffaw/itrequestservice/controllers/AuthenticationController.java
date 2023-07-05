@@ -6,6 +6,7 @@ import com.garygriffaw.itrequestservice.model.UserAuthenticationDTO;
 import com.garygriffaw.itrequestservice.model.UserRegisterDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -23,7 +24,7 @@ public class AuthenticationController {
     private final AuthenticationService authenticationService;
 
     @PostMapping(REGISTER)
-    public ResponseEntity<UserAuthenticationResponseDTO> register(@RequestBody UserRegisterDTO request) {
+    public ResponseEntity<UserAuthenticationResponseDTO> register(@Validated @RequestBody UserRegisterDTO request) {
         return ResponseEntity.ok(authenticationService.register(request));
     }
 
