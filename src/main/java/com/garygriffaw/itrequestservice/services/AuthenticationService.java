@@ -1,7 +1,7 @@
 package com.garygriffaw.itrequestservice.services;
 
 import com.garygriffaw.itrequestservice.config.JwtService;
-import com.garygriffaw.itrequestservice.controllers.UnprocessableEntityException;
+import com.garygriffaw.itrequestservice.controllers.UsernameAlreadyExistsException;
 import com.garygriffaw.itrequestservice.entities.Role;
 import com.garygriffaw.itrequestservice.enums.RoleEnum;
 import com.garygriffaw.itrequestservice.model.UserAuthenticationResponseDTO;
@@ -32,7 +32,7 @@ public class AuthenticationService {
 
     public UserAuthenticationResponseDTO register(UserRegisterDTO request) {
         if (userRepository.existsUserByUsername(request.getUsername())) {
-            throw new UnprocessableEntityException();
+            throw new UsernameAlreadyExistsException("Username already exists.");
         }
 
         User user = User.builder()

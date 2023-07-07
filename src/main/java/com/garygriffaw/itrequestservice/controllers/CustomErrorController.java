@@ -5,6 +5,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -24,5 +25,20 @@ public class CustomErrorController {
                 }).collect(Collectors.toList());
 
         return ResponseEntity.badRequest().body(errorList);
+    }
+
+    @ExceptionHandler(UsernameAlreadyExistsException.class)
+    ResponseEntity handleUsernameAlreadyExistsException(UsernameAlreadyExistsException exception) {
+        List<String> messages = new ArrayList<>();
+        messages.add(exception.getMessage());
+
+        List errorList = messages.stream()
+                .map(message -> {
+                    Map<String, String> errorMap = new HashMap<>();
+                    errorMap.put("username", message);
+                    return errorMap;
+                }).collect(Collectors.toList());
+
+        return ResponseEntity.unprocessableEntity().body(errorList);
     }
 }
