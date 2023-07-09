@@ -1,5 +1,6 @@
 package com.garygriffaw.itrequestservice.controllers;
 
+import com.garygriffaw.itrequestservice.exceptions.NotFoundException;
 import com.garygriffaw.itrequestservice.model.UserAdminDTO;
 import com.garygriffaw.itrequestservice.services.UserService;
 import lombok.RequiredArgsConstructor;

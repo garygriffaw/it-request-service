@@ -1,4 +1,4 @@
-package com.garygriffaw.itrequestservice.controllers;
+package com.garygriffaw.itrequestservice.exceptions;
 
 public class NotFoundException extends RuntimeException {
     public NotFoundException() {

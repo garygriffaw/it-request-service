@@ -1,5 +1,7 @@
 package com.garygriffaw.itrequestservice.controllers;
 
+import com.garygriffaw.itrequestservice.exceptions.ForbiddenException;
+import com.garygriffaw.itrequestservice.exceptions.NotFoundException;
 import com.garygriffaw.itrequestservice.model.RequestDTO;
 import com.garygriffaw.itrequestservice.model.RequestRequesterDTO;
 import com.garygriffaw.itrequestservice.services.RequestService;

@@ -56,6 +56,10 @@ public class User {
     private Set<Request> requests = new HashSet<>();
 
     @Builder.Default
+    @OneToMany(mappedBy = "assignedTo")
+    private Set<Request> assignedRequests = new HashSet<>();
+
+    @Builder.Default
     @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JoinTable(name = "users_roles",
             joinColumns = @JoinColumn(name = "user_id"),

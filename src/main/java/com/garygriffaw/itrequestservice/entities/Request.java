@@ -17,12 +17,13 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 public class Request {
 
-    public Request(Integer id, Integer version, @NotNull String title, @NotNull String description, User requester, String resolution, LocalDateTime createdDate, LocalDateTime updateDate) {
+    public Request(Integer id, Integer version, @NotNull String title, @NotNull String description, User requester, User assignedTo, String resolution, LocalDateTime createdDate, LocalDateTime updateDate) {
         this.id = id;
         this.version = version;
         this.title = title;
         this.description = description;
         this.setRequester(requester);
+        this.setAssignedTo(assignedTo);
         this.resolution = resolution;
         this.createdDate = createdDate;
         this.updateDate = updateDate;
@@ -43,7 +44,7 @@ public class Request {
 
     @NotBlank(message = "Description must not be blank.")
     @NotNull(message = "Description must have a value.")
-    @Size(min = 5, max = 500, message = "Title must be between 5 and 500 characters.")
+    @Size(min = 5, max = 500, message = "Description must be between 5 and 500 characters.")
     @Column(length = 500)
     private String description;
 
@@ -52,6 +53,11 @@ public class Request {
     @JoinColumn(name = "requester_user_id")
     private User requester;
 
+    @ManyToOne
+    @JoinColumn(name = "assigned_to_user_id")
+    private User assignedTo;
+
+    @Column(length = 500)
     private String resolution;
 
     @CreationTimestamp
@@ -64,5 +70,12 @@ public class Request {
     public void setRequester(User requester) {
         this.requester = requester;
         requester.getRequests().add(this);
+    }
+
+    public void setAssignedTo(User assignedTo) {
+        this.assignedTo = assignedTo;
+
+        if (assignedTo != null)
+            assignedTo.getAssignedRequests().add(this);
     }
 }

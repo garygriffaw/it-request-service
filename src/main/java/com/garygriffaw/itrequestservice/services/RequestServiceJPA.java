@@ -3,6 +3,7 @@ package com.garygriffaw.itrequestservice.services;
 import com.garygriffaw.itrequestservice.config.JwtService;
 import com.garygriffaw.itrequestservice.entities.Request;
 import com.garygriffaw.itrequestservice.entities.User;
+import com.garygriffaw.itrequestservice.exceptions.ValueNotFoundException;
 import com.garygriffaw.itrequestservice.mappers.RequestMapper;
 import com.garygriffaw.itrequestservice.mappers.UserMapper;
 import com.garygriffaw.itrequestservice.model.RequestDTO;
@@ -12,6 +13,7 @@ import com.garygriffaw.itrequestservice.repositories.RequestRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Primary;
+import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -105,18 +107,14 @@ public class RequestServiceJPA implements RequestService {
     public Optional<RequestDTO> updateRequestById(Integer requestId, RequestDTO requestDTO) {
         AtomicReference<Optional<RequestDTO>> atomicReference =new AtomicReference<>();
 
-        Optional<UserUnsecureDTO> requesterDTO = userService.getUserByUsernameUnsec(requestDTO.getRequester().getUsername());
-
-        if (requesterDTO.isEmpty()) {
-            return Optional.empty();
-        }
-
-        User requester = userMapper.userUnsecureDTOToUser(requesterDTO.get());
+        User requester = getRequesterUser(requestDTO.getRequester());
+        User assignedTo = getAssignedToUser(requestDTO.getAssignedTo());
 
         requestRepository.findById(requestId).ifPresentOrElse(foundRequest -> {
             foundRequest.setTitle(requestDTO.getTitle());
             foundRequest.setDescription(requestDTO.getDescription());
             foundRequest.setRequester(requester);
+            foundRequest.setAssignedTo(assignedTo);
             foundRequest.setResolution(requestDTO.getResolution());
             atomicReference.set(Optional.of(requestMapper.requestToRequestDTO(requestRepository.save(foundRequest))));
         }, () -> {
@@ -203,5 +201,35 @@ public class RequestServiceJPA implements RequestService {
     private Optional<UserUnsecureDTO> getUserDTO(String username) {
         return Optional.ofNullable(userService.getUserByUsernameUnsec(username))
                 .orElse(null);
+    }
+
+    private User getRequesterUser(UserUnsecureDTO requester) {
+        try {
+            return getUser(requester, true);
+        } catch (ChangeSetPersister.NotFoundException e) {
+            throw new ValueNotFoundException("Requester not found");
+        }
+    }
+
+    private User getAssignedToUser(UserUnsecureDTO assignedTo) {
+        try {
+            return getUser(assignedTo, false);
+        } catch (ChangeSetPersister.NotFoundException e) {
+            throw new ValueNotFoundException("Assigned To not found");
+        }
+    }
+
+    private User getUser(UserUnsecureDTO userUnsecureDTO, boolean required) throws ChangeSetPersister.NotFoundException {
+        if (userUnsecureDTO == null) {
+            if (required) {
+                throw new ChangeSetPersister.NotFoundException();
+            }
+            return null;
+        }
+
+        Optional<UserUnsecureDTO> foundUserUnsecureDTO = userService.getUserByUsernameUnsec(userUnsecureDTO.getUsername());
+
+        return foundUserUnsecureDTO.map(userMapper::userUnsecureDTOToUser)
+                .orElseThrow(ChangeSetPersister.NotFoundException::new);
     }
 }

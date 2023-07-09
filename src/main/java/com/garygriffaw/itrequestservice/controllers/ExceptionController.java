@@ -1,5 +1,7 @@
 package com.garygriffaw.itrequestservice.controllers;
 
+import com.garygriffaw.itrequestservice.exceptions.ForbiddenException;
+import com.garygriffaw.itrequestservice.exceptions.NotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;

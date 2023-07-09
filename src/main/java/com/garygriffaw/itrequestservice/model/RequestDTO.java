@@ -23,11 +23,13 @@ public class RequestDTO {
 
     @NotBlank(message = "Description must not be blank.")
     @NotNull(message = "Description must have a value.")
-    @Size(min = 5, max = 500, message = "Title must be between 5 and 500 characters.")
+    @Size(min = 5, max = 500, message = "Description must be between 5 and 500 characters.")
     @Column(length = 500)
     private String description;
 
     private UserUnsecureDTO requester;
+
+    private UserUnsecureDTO assignedTo;
 
     private String resolution;
 

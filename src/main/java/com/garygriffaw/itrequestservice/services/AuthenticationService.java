@@ -1,7 +1,7 @@
 package com.garygriffaw.itrequestservice.services;
 
 import com.garygriffaw.itrequestservice.config.JwtService;
-import com.garygriffaw.itrequestservice.controllers.UsernameAlreadyExistsException;
+import com.garygriffaw.itrequestservice.exceptions.UsernameAlreadyExistsException;
 import com.garygriffaw.itrequestservice.entities.Role;
 import com.garygriffaw.itrequestservice.enums.RoleEnum;
 import com.garygriffaw.itrequestservice.model.UserAuthenticationResponseDTO;

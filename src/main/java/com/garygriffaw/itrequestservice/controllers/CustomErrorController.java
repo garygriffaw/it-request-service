@@ -1,5 +1,7 @@
 package com.garygriffaw.itrequestservice.controllers;
 
+import com.garygriffaw.itrequestservice.exceptions.UsernameAlreadyExistsException;
+import com.garygriffaw.itrequestservice.exceptions.ValueNotFoundException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -40,5 +42,20 @@ public class CustomErrorController {
                 }).collect(Collectors.toList());
 
         return ResponseEntity.unprocessableEntity().body(errorList);
+    }
+
+    @ExceptionHandler(ValueNotFoundException.class)
+    ResponseEntity handleValueNotFoundException(ValueNotFoundException exception) {
+        List<String> messages = new ArrayList<>();
+        messages.add(exception.getMessage());
+
+        List errorList = messages.stream()
+                .map(message -> {
+                    Map<String, String> errorMap = new HashMap<>();
+                    errorMap.put("errorMsg", message);
+                    return errorMap;
+                }).collect(Collectors.toList());
+
+        return ResponseEntity.badRequest().body(errorList);
     }
 }
