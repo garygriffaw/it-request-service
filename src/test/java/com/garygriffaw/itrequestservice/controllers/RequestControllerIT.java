@@ -263,7 +263,7 @@ public class RequestControllerIT {
                 .resolution(updateResolution)
                 .build();
 
-        mockMvc.perform(put(RequestController.REQUESTS_REQUESTER_PATH_ID, testRequest.getId())
+        mockMvc.perform(put(RequestController.MY_REQUESTS_PATH_ID, testRequest.getId())
                         .accept(MediaType.APPLICATION_JSON)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(testDTO)))
@@ -291,7 +291,7 @@ public class RequestControllerIT {
                 .description(updateDescription)
                 .build();
 
-        mockMvc.perform(put(RequestController.REQUESTS_REQUESTER_PATH_ID, 9999)
+        mockMvc.perform(put(RequestController.MY_REQUESTS_PATH_ID, 9999)
                         .accept(MediaType.APPLICATION_JSON)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(testDTO)))
@@ -311,7 +311,7 @@ public class RequestControllerIT {
                 .description(updateDescription)
                 .build();
 
-        mockMvc.perform(put(RequestController.REQUESTS_REQUESTER_PATH_ID, testRequest.getId())
+        mockMvc.perform(put(RequestController.MY_REQUESTS_PATH_ID, testRequest.getId())
                         .accept(MediaType.APPLICATION_JSON)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(testDTO)))

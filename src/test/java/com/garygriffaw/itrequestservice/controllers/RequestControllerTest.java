@@ -273,7 +273,7 @@ class RequestControllerTest {
         given(requestService.updateRequestByIdAndRequester(any(), any(), any(RequestRequesterDTO.class)))
                 .willReturn(Optional.of(request));
 
-        mockMvc.perform(put(RequestController.REQUESTS_REQUESTER_PATH_ID, request.getId())
+        mockMvc.perform(put(RequestController.MY_REQUESTS_PATH_ID, request.getId())
                         .accept(MediaType.APPLICATION_JSON)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(testDTO)))
@@ -290,7 +290,7 @@ class RequestControllerTest {
         given(requestService.updateRequestByIdAndRequester(any(), any(), any(RequestRequesterDTO.class)))
                 .willReturn(Optional.empty());
 
-        mockMvc.perform(put(RequestController.REQUESTS_REQUESTER_PATH_ID, request.getId())
+        mockMvc.perform(put(RequestController.MY_REQUESTS_PATH_ID, request.getId())
                         .accept(MediaType.APPLICATION_JSON)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))

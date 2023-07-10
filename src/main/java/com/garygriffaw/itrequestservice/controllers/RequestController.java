@@ -20,15 +20,12 @@ import org.springframework.web.bind.annotation.*;
 public class RequestController {
 
     private static final String BASE_PATH = "/api/v1";
-    private static final String REQUESTER = "/requester";
 
     public static final String REQUESTS_PATH = BASE_PATH + "/requests";
     public static final String REQUESTS_PATH_ID = REQUESTS_PATH + "/{requestId}";
 
     public static final String MY_REQUESTS_PATH = BASE_PATH + "/myrequests";
     public static final String MY_REQUESTS_PATH_ID = MY_REQUESTS_PATH + "/{requestId}";
-
-    public static final String REQUESTS_REQUESTER_PATH_ID = REQUESTS_PATH + REQUESTER + "/{requestId}";
 
 
     private final RequestService requestService;
@@ -82,7 +79,7 @@ public class RequestController {
         return new ResponseEntity(HttpStatus.NO_CONTENT);
     }
 
-    @PutMapping(REQUESTS_REQUESTER_PATH_ID)
+    @PutMapping(MY_REQUESTS_PATH_ID)
     public ResponseEntity updateRequestByIdAndRequester(@PathVariable("requestId") Integer requestId,
                                                         @Validated @RequestBody RequestRequesterDTO requestDTO,
                                                         Authentication authentication) {
