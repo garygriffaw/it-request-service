@@ -110,6 +110,45 @@ class RequestControllerTest {
                 .andExpect(status().isNotFound());
     }
 
+    @Test
+    void testListAssignedToRequests() throws Exception {
+        given(requestService.listRequestsByAssignedTo(any() ,any(), any()))
+                .willReturn(requestServiceImpl.listRequestsByAssignedTo("abc",1, 25));
+
+        mockMvc.perform(get(RequestController.ASSIGNED_TO_REQUESTS_PATH)
+                        .with(user("abc"))
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.content.length()", is(2)));
+    }
+
+    @Test
+    void testGetAssignedToRequestById() throws Exception {
+        RequestDTO testRequest = requestServiceImpl.listRequests(1, 25).getContent().get(0);
+
+        given(requestService.getRequestByIdAndAssignedTo(testRequest.getId(), "abc"))
+                .willReturn(Optional.of(testRequest));
+
+        mockMvc.perform(get(RequestController.ASSIGNED_TO_REQUESTS_PATH_ID, testRequest.getId())
+                        .with(user("abc"))
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.id", is(testRequest.getId())))
+                .andExpect(jsonPath("$.title", is(testRequest.getTitle())));
+    }
+
+    @Test
+    void testGetAssignedToRequestByIdNotFound() throws Exception {
+        given(requestService.getRequestByIdAndAssignedTo(any(Integer.class), any(String.class)))
+                .willReturn(Optional.empty());
+
+        mockMvc.perform(get(RequestController.ASSIGNED_TO_REQUESTS_PATH_ID, 9999)
+                        .with(user("abc")))
+                .andExpect(status().isNotFound());
+    }
+
     @WithMockUser(username = "abc", roles = "ADMIN")
     @Test
     void testListRequests() throws Exception {
@@ -120,7 +159,7 @@ class RequestControllerTest {
                     .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.content.length()", is(3)));
+                .andExpect(jsonPath("$.content.length()", is(4)));
     }
 
     @WithMockUser(username = "abc", roles = "USER")

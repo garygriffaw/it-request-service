@@ -88,6 +88,37 @@ public class RequestControllerIT {
                     .andExpect(status().isNotFound());
     }
 
+    @WithMockUser(username = BootstrapData.TEST_TECH_1)
+    @Test
+    void testListAssignedToRequests() throws Exception {
+        mockMvc.perform(get(RequestController.ASSIGNED_TO_REQUESTS_PATH)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.content.length()", is(2)));
+    }
+
+    @WithMockUser(username = BootstrapData.TEST_TECH_1)
+    @Test
+    void testGetAssignedToRequestById() throws Exception {
+        Request testRequest = requestRepository.findAll().get(1);
+
+        mockMvc.perform(get(RequestController.ASSIGNED_TO_REQUESTS_PATH_ID, testRequest.getId())
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.id", is(testRequest.getId())))
+                .andExpect(jsonPath("$.title", is(testRequest.getTitle())));
+    }
+
+    @WithMockUser(username = BootstrapData.TEST_TECH_1)
+    @Test
+    void testGetAssignedToRequestByIdNotfound() throws Exception {
+        mockMvc.perform(get(RequestController.ASSIGNED_TO_REQUESTS_PATH_ID, 9999)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound());
+    }
+
     @WithMockUser(username = "abc", roles = "ADMIN")
     @Test
     void testListRequests() throws Exception {
@@ -95,7 +126,7 @@ public class RequestControllerIT {
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.content.length()", is(3)));
+                .andExpect(jsonPath("$.content.length()", is(4)));
     }
 
     @WithMockUser(username = "abc", roles = "USER")

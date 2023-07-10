@@ -67,6 +67,24 @@ public class RequestServiceJPA implements RequestService {
     }
 
     @Override
+    public Page<RequestDTO> listRequestsByAssignedTo(String assignedToUsername, Integer pageNumber, Integer pageSize) {
+        PageRequest pageRequest = buildPageRequest(pageNumber, pageSize);
+
+        Page<Request> requestPage;
+
+        Optional<UserUnsecureDTO> assignedToDTO = userService.getUserByUsernameUnsec(assignedToUsername);
+
+        if (assignedToDTO.isEmpty()) {
+            return Page.empty();
+        }
+
+        User assignedTo = userMapper.userUnsecureDTOToUser(assignedToDTO.get());
+        requestPage = requestRepository.findAllByAssignedTo(assignedTo, pageRequest);
+
+        return requestPage.map(requestMapper::requestToRequestDTO);
+    }
+
+    @Override
     public Optional<RequestDTO> getRequestById(Integer requestId) {
         return Optional.ofNullable(requestMapper.requestToRequestDTO(requestRepository.findById(requestId)
                 .orElse(null)));
@@ -83,6 +101,20 @@ public class RequestServiceJPA implements RequestService {
         User requester = userMapper.userUnsecureDTOToUser(requesterDTO.get());
 
         return Optional.ofNullable(requestMapper.requestToRequestDTO(requestRepository.findByIdAndRequester(requestId, requester)
+                .orElse(null)));
+    }
+
+    @Override
+    public Optional<RequestDTO> getRequestByIdAndAssignedTo(Integer requestId, String assignedToUsername) {
+        Optional<UserUnsecureDTO> assignedToDTO = userService.getUserByUsernameUnsec(assignedToUsername);
+
+        if (assignedToDTO.isEmpty()) {
+            return Optional.empty();
+        }
+
+        User assignedTo = userMapper.userUnsecureDTOToUser(assignedToDTO.get());
+
+        return Optional.ofNullable(requestMapper.requestToRequestDTO(requestRepository.findByIdAndAssignedTo(requestId, assignedTo)
                 .orElse(null)));
     }
 

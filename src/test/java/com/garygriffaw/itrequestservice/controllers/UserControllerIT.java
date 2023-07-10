@@ -63,7 +63,7 @@ public class UserControllerIT {
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.content.length()", is(2)));
+                .andExpect(jsonPath("$.content.length()", is(4)));
     }
 
     @WithMockUser(username = "abc", roles = "USER")

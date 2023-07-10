@@ -22,6 +22,8 @@ public class BootstrapData implements CommandLineRunner {
 
     public final static String TEST_USER_1 = "test_user_1";
     public final static String TEST_USER_2 = "test_user_2";
+    public final static String TEST_TECH_1 = "test_test_1";
+    public final static String TEST_TECH_2 = "test_test_2";
 
     @Transactional
     @Override
@@ -63,16 +65,37 @@ public class BootstrapData implements CommandLineRunner {
                 .build();
         user2.addRole(userRole);
         userRepository.save(user2);
+
+        User tech1 = User.builder()
+                .username(TEST_TECH_1)
+                .firstname("Tech 1")
+                .lastname("Johnson")
+                .email("tech1@mail.abc")
+                .build();
+        user1.addRole(userRole);
+        userRepository.save(tech1);
+
+        User tech2 = User.builder()
+                .username(TEST_TECH_2)
+                .firstname("Tech 2")
+                .lastname("Gavin")
+                .email("tech2@mail.abc")
+                .build();
+        user1.addRole(userRole);
+        userRepository.save(tech2);
     }
 
     private void loadRequestData() {
         User testUser1 = userRepository.findByUsername(TEST_USER_1).get();
         User testUser2 = userRepository.findByUsername(TEST_USER_2).get();
+        User testTech1 = userRepository.findByUsername(TEST_TECH_1).get();
+        User testTech2 = userRepository.findByUsername(TEST_TECH_2).get();
 
         Request request1 = Request.builder()
                 .title("Request 1")
                 .description("This is the description for request 1.")
                 .requester(testUser1)
+                .assignedTo(testTech2)
                 .build();
         requestRepository.save(request1);
 
@@ -80,6 +103,7 @@ public class BootstrapData implements CommandLineRunner {
                 .title("Request 2")
                 .description("This is the description for request 2.")
                 .requester(testUser2)
+                .assignedTo(testTech1)
                 .build();
         requestRepository.save(request2);
 
@@ -89,5 +113,13 @@ public class BootstrapData implements CommandLineRunner {
                 .requester(testUser2)
                 .build();
         requestRepository.save(request3);
+
+        Request request4 = Request.builder()
+                .title("Request 4")
+                .description("This is the description for request 4.")
+                .requester(testUser1)
+                .assignedTo(testTech1)
+                .build();
+        requestRepository.save(request4);
     }
 }

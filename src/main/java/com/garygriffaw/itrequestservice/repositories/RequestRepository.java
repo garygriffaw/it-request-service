@@ -12,5 +12,9 @@ public interface RequestRepository extends JpaRepository<Request, Integer> {
 
     Page<Request> findAllByRequester(User requester, Pageable pageable);
 
+    Page<Request> findAllByAssignedTo(User assignedTo, Pageable pageable);
+
     Optional<Request> findByIdAndRequester(Integer id, User requester);
+
+    Optional<Request> findByIdAndAssignedTo(Integer id, User assignedTo);
 }

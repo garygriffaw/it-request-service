@@ -31,12 +31,25 @@ public class RequestServiceImpl implements RequestService {
                 .lastname("Smith")
                 .build();
 
+        UserUnsecureDTO tech1 = UserUnsecureDTO.builder()
+                .username("tech1")
+                .firstname("Sam")
+                .lastname("Brown")
+                .build();
+
+        UserUnsecureDTO tech2 = UserUnsecureDTO.builder()
+                .username("tech2")
+                .firstname("Sussie")
+                .lastname("Washington")
+                .build();
+
         RequestDTO request1 = RequestDTO.builder()
                 .id(1)
                 .version(1)
                 .title("Request 1")
                 .description("This is the description.")
                 .requester(user1)
+                .assignedTo(tech1)
                 .createdDate(LocalDateTime.now())
                 .updateDate(LocalDateTime.now())
                 .build();
@@ -48,6 +61,7 @@ public class RequestServiceImpl implements RequestService {
                 .title("Request 2")
                 .description("This is the description.")
                 .requester(user2)
+                .assignedTo(tech2)
                 .createdDate(LocalDateTime.now())
                 .updateDate(LocalDateTime.now())
                 .build();
@@ -63,6 +77,18 @@ public class RequestServiceImpl implements RequestService {
                 .updateDate(LocalDateTime.now())
                 .build();
         requestMap.put(request3.getId(), request3);
+
+        RequestDTO request4 = RequestDTO.builder()
+                .id(4)
+                .version(1)
+                .title("Request 4")
+                .description("This is the description.")
+                .requester(user2)
+                .assignedTo(tech1)
+                .createdDate(LocalDateTime.now())
+                .updateDate(LocalDateTime.now())
+                .build();
+        requestMap.put(request4.getId(), request4);
     }
 
     @Override
@@ -81,12 +107,28 @@ public class RequestServiceImpl implements RequestService {
     }
 
     @Override
+    public Page<RequestDTO> listRequestsByAssignedTo(String assignedToUsername, Integer pageNumber, Integer pageSize) {
+        Map<Integer, RequestDTO> requestByAssignedToMap = requestMap.entrySet()
+                .stream()
+                .filter(map -> map.getValue().getAssignedTo() != null)
+                .filter(map -> "tech1".equals(map.getValue().getAssignedTo().getUsername()))
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+
+        return new PageImpl<>(new ArrayList<>(requestByAssignedToMap.values()));
+    }
+
+    @Override
     public Optional<RequestDTO> getRequestById(Integer requestId) {
         return Optional.of(requestMap.get(requestId));
     }
 
     @Override
     public Optional<RequestDTO> getRequestByIdAndRequester(Integer requestId, String requesterUsername) {
+        return Optional.of(requestMap.get(requestId));
+    }
+
+    @Override
+    public Optional<RequestDTO> getRequestByIdAndAssignedTo(Integer requestId, String assignedToUsername) {
         return Optional.of(requestMap.get(requestId));
     }
 

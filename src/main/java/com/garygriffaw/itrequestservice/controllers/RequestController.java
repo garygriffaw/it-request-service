@@ -27,6 +27,9 @@ public class RequestController {
     public static final String MY_REQUESTS_PATH = BASE_PATH + "/myrequests";
     public static final String MY_REQUESTS_PATH_ID = MY_REQUESTS_PATH + "/{requestId}";
 
+    public static final String ASSIGNED_TO_REQUESTS_PATH = BASE_PATH + "/assignedtorequests";
+    public static final String ASSIGNED_TO_REQUESTS_PATH_ID = ASSIGNED_TO_REQUESTS_PATH + "/{requestId}";
+
 
     private final RequestService requestService;
 
@@ -41,6 +44,20 @@ public class RequestController {
     public RequestDTO getMyRequestById(@PathVariable("requestId") Integer requestId,
                                        Authentication authentication) {
         return requestService.getRequestByIdAndRequester(requestId, authentication.getName())
+                .orElseThrow(NotFoundException::new);
+    }
+
+    @GetMapping(ASSIGNED_TO_REQUESTS_PATH)
+    public Page<RequestDTO> listAssignedToRequests(@RequestParam(required = false) Integer pageNumber,
+                                           @RequestParam(required = false) Integer pageSize,
+                                           Authentication authentication) {
+        return requestService.listRequestsByAssignedTo(authentication.getName(), pageNumber, pageSize);
+    }
+
+    @GetMapping(ASSIGNED_TO_REQUESTS_PATH_ID)
+    public RequestDTO getAssignedToRequestById(@PathVariable("requestId") Integer requestId,
+                                       Authentication authentication) {
+        return requestService.getRequestByIdAndAssignedTo(requestId, authentication.getName())
                 .orElseThrow(NotFoundException::new);
     }
 
