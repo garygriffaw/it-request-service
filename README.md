@@ -22,3 +22,10 @@ I plan on adding more features.
 * Update a request regardless of who created it
 * Update all of the fields on the request
 * Delete a request regardless of who created it
+* Assign requests to a user
+* Assign roles to users
+
+### Users assigned to a request
+* View the list of requests they are assigned to
+* View a request they are assigned to
+* Update the Resolution on a request they are assigned to
