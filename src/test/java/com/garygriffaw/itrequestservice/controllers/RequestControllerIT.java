@@ -5,6 +5,7 @@ import com.garygriffaw.itrequestservice.bootstrap.BootstrapData;
 import com.garygriffaw.itrequestservice.entities.Request;
 import com.garygriffaw.itrequestservice.entities.User;
 import com.garygriffaw.itrequestservice.mappers.UserMapper;
+import com.garygriffaw.itrequestservice.model.RequestAssignedToDTO;
 import com.garygriffaw.itrequestservice.model.RequestDTO;
 import com.garygriffaw.itrequestservice.model.RequestRequesterDTO;
 import com.garygriffaw.itrequestservice.model.UserUnsecureDTO;
@@ -291,6 +292,7 @@ public class RequestControllerIT {
                 .title(updateTitle)
                 .description(updateDescription)
                 .requester(updateUser)
+                .assignedTo(updateUser)
                 .resolution(updateResolution)
                 .build();
 
@@ -306,6 +308,7 @@ public class RequestControllerIT {
 
         // These should not be updated
         assertThat(updatedRequest.getRequester()).isEqualTo(testRequest.getRequester());
+        assertThat(updatedRequest.getAssignedTo()).isEqualTo(testRequest.getAssignedTo());
         assertThat(updatedRequest.getResolution()).isEqualTo(testRequest.getResolution());
     }
 
@@ -343,6 +346,76 @@ public class RequestControllerIT {
                 .build();
 
         mockMvc.perform(put(RequestController.MY_REQUESTS_PATH_ID, testRequest.getId())
+                        .accept(MediaType.APPLICATION_JSON)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(testDTO)))
+                .andExpect(status().isNotFound());
+    }
+
+    @WithMockUser(username = BootstrapData.TEST_TECH_1)
+    @Rollback
+    @Transactional
+    @Test
+    void testAssignedToUpdateRequest() throws Exception {
+        Request testRequest = requestRepository.findAll().get(1);
+        final String updateTitle = getUpdatedString(testRequest.getTitle());
+        final String updateDescription = getUpdatedString(testRequest.getDescription());
+        final UserUnsecureDTO updateUser = userMapper.userToUserUnsecureDTO(userRepository.findByUsername(BootstrapData.TEST_USER_1).get());
+        final String updateResolution = getUpdatedString(testRequest.getResolution());
+        RequestDTO testDTO = RequestDTO.builder()
+                .id(testRequest.getId())
+                .version(testRequest.getVersion())
+                .title(updateTitle)
+                .description(updateDescription)
+                .requester(updateUser)
+                .resolution(updateResolution)
+                .build();
+
+        mockMvc.perform(put(RequestController.ASSIGNED_TO_REQUESTS_PATH_ID, testRequest.getId())
+                        .accept(MediaType.APPLICATION_JSON)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(testDTO)))
+                .andExpect(status().isNoContent());
+
+        Request updatedRequest = requestRepository.findById(testDTO.getId()).get();
+        assertThat(updatedRequest.getResolution()).isEqualTo(updateResolution);
+
+        // These should not be updated
+        assertThat(updatedRequest.getRequester()).isEqualTo(testRequest.getRequester());
+        assertThat(updatedRequest.getTitle()).isEqualTo(testRequest.getTitle());
+        assertThat(updatedRequest.getDescription()).isEqualTo(testRequest.getDescription());
+    }
+
+    @WithMockUser(username = BootstrapData.TEST_TECH_1)
+    @Test
+    void testAssignedToUpdateRequestNotFound() throws Exception {
+        Request testRequest = requestRepository.findAll().get(1);
+        final String updateResolution = getUpdatedString(testRequest.getResolution());
+        RequestAssignedToDTO testDTO = RequestAssignedToDTO.builder()
+                .id(testRequest.getId())
+                .version(testRequest.getVersion())
+                .resolution(updateResolution)
+                .build();
+
+        mockMvc.perform(put(RequestController.ASSIGNED_TO_REQUESTS_PATH_ID, 9999)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(testDTO)))
+                .andExpect(status().isNotFound());
+    }
+
+    @WithMockUser(username = BootstrapData.TEST_TECH_2)
+    @Test
+    void testAssignedToUpdateRequestWrongRequester() throws Exception {
+        Request testRequest = requestRepository.findAll().get(1);
+        final String updateResolution = getUpdatedString(testRequest.getResolution());
+        RequestAssignedToDTO testDTO = RequestAssignedToDTO.builder()
+                .id(testRequest.getId())
+                .version(testRequest.getVersion())
+                .resolution(updateResolution)
+                .build();
+
+        mockMvc.perform(put(RequestController.ASSIGNED_TO_REQUESTS_PATH_ID, testRequest.getId())
                         .accept(MediaType.APPLICATION_JSON)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(testDTO)))

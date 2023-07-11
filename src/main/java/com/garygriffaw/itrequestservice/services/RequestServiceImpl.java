@@ -1,5 +1,6 @@
 package com.garygriffaw.itrequestservice.services;
 
+import com.garygriffaw.itrequestservice.model.RequestAssignedToDTO;
 import com.garygriffaw.itrequestservice.model.RequestDTO;
 import com.garygriffaw.itrequestservice.model.RequestRequesterDTO;
 import com.garygriffaw.itrequestservice.model.UserUnsecureDTO;
@@ -160,6 +161,14 @@ public class RequestServiceImpl implements RequestService {
         RequestDTO existing = requestMap.get(requestId);
         existing.setTitle(requestDTO.getTitle());
         existing.setDescription(requestDTO.getDescription());
+
+        return Optional.of(existing);
+    }
+
+    @Override
+    public Optional<RequestDTO> updateRequestByIdAndAssignedTo(Integer requestId, String assignedToUsername, RequestAssignedToDTO requestDTO) {
+        RequestDTO existing = requestMap.get(requestId);
+        existing.setResolution(requestDTO.getResolution());
 
         return Optional.of(existing);
     }

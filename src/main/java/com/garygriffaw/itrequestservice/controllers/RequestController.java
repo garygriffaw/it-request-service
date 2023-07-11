@@ -2,6 +2,7 @@ package com.garygriffaw.itrequestservice.controllers;
 
 import com.garygriffaw.itrequestservice.exceptions.ForbiddenException;
 import com.garygriffaw.itrequestservice.exceptions.NotFoundException;
+import com.garygriffaw.itrequestservice.model.RequestAssignedToDTO;
 import com.garygriffaw.itrequestservice.model.RequestDTO;
 import com.garygriffaw.itrequestservice.model.RequestRequesterDTO;
 import com.garygriffaw.itrequestservice.services.RequestService;
@@ -101,6 +102,17 @@ public class RequestController {
                                                         @Validated @RequestBody RequestRequesterDTO requestDTO,
                                                         Authentication authentication) {
         if (requestService.updateRequestByIdAndRequester(requestId, authentication.getName(), requestDTO).isEmpty()) {
+            throw new NotFoundException();
+        }
+
+        return new ResponseEntity(HttpStatus.NO_CONTENT);
+    }
+
+    @PutMapping(ASSIGNED_TO_REQUESTS_PATH_ID)
+    public ResponseEntity updateRequestByIdAndAssignedTo(@PathVariable("requestId") Integer requestId,
+                                                        @Validated @RequestBody RequestAssignedToDTO requestDTO,
+                                                        Authentication authentication) {
+        if (requestService.updateRequestByIdAndAssignedTo(requestId, authentication.getName(), requestDTO).isEmpty()) {
             throw new NotFoundException();
         }
 

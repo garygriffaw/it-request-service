@@ -3,6 +3,7 @@ package com.garygriffaw.itrequestservice.controllers;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.garygriffaw.itrequestservice.config.JwtService;
 import com.garygriffaw.itrequestservice.config.SecurityConfiguration;
+import com.garygriffaw.itrequestservice.model.RequestAssignedToDTO;
 import com.garygriffaw.itrequestservice.model.RequestDTO;
 import com.garygriffaw.itrequestservice.model.RequestRequesterDTO;
 import com.garygriffaw.itrequestservice.services.RequestService;
@@ -334,6 +335,68 @@ class RequestControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isNotFound());
+    }
+
+    @WithMockUser(username = "abc")
+    @Test
+    void testAssignedToUpdateRequest() throws Exception {
+        RequestDTO request = requestServiceImpl.listRequests(1, 25).getContent().get(0);
+        RequestAssignedToDTO testDTO = RequestAssignedToDTO.builder()
+                .id(request.getId())
+                .version(request.getVersion())
+                .resolution("Resolution updated")
+                .build();
+
+        given(requestService.updateRequestByIdAndAssignedTo(any(), any(), any(RequestAssignedToDTO.class)))
+                .willReturn(Optional.of(request));
+
+        mockMvc.perform(put(RequestController.ASSIGNED_TO_REQUESTS_PATH_ID, request.getId())
+                        .accept(MediaType.APPLICATION_JSON)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(testDTO)))
+                .andExpect(status().isNoContent());
+
+        verify(requestService).updateRequestByIdAndAssignedTo(any(Integer.class), any(String.class), any(RequestAssignedToDTO.class));
+    }
+
+    @WithMockUser(username = "abc")
+    @Test
+    void testAssignedToUpdateRequestNotFound() throws Exception {
+        RequestDTO request = requestServiceImpl.listRequests(1, 25).getContent().get(0);
+        RequestAssignedToDTO testDTO = RequestAssignedToDTO.builder()
+                .id(request.getId())
+                .version(request.getVersion())
+                .resolution("Resolution updated")
+                .build();
+
+        given(requestService.updateRequestByIdAndAssignedTo(any(), any(), any(RequestAssignedToDTO.class)))
+                .willReturn(Optional.empty());
+
+        mockMvc.perform(put(RequestController.ASSIGNED_TO_REQUESTS_PATH_ID, request.getId())
+                        .accept(MediaType.APPLICATION_JSON)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(testDTO)))
+                .andExpect(status().isNotFound());
+    }
+
+    @WithMockUser(username = "abc")
+    @Test
+    void testAssignedToUpdateRequestResolutionTooShort() throws Exception {
+        RequestDTO request = requestServiceImpl.listRequests(1, 25).getContent().get(0);
+        RequestAssignedToDTO testDTO = RequestAssignedToDTO.builder()
+                .id(request.getId())
+                .version(request.getVersion())
+                .resolution("aaaa")
+                .build();
+
+        given(requestService.updateRequestByIdAndAssignedTo(any(), any(), any(RequestAssignedToDTO.class)))
+                .willReturn(Optional.of(request));
+
+        mockMvc.perform(put(RequestController.ASSIGNED_TO_REQUESTS_PATH_ID, request.getId())
+                        .accept(MediaType.APPLICATION_JSON)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(testDTO)))
+                .andExpect(status().isBadRequest());
     }
 
     @WithMockUser(username = "abc", roles = "ADMIN")
