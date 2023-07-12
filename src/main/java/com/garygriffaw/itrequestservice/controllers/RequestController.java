@@ -21,9 +21,11 @@ import org.springframework.web.bind.annotation.*;
 public class RequestController {
 
     private static final String BASE_PATH = "/api/v1";
+    private static final String DESCRIPTION = "/description";
 
     public static final String REQUESTS_PATH = BASE_PATH + "/requests";
     public static final String REQUESTS_PATH_ID = REQUESTS_PATH + "/{requestId}";
+    public static final String REQUESTS_DESCRIPTION_PATH = REQUESTS_PATH + DESCRIPTION + "/{description}";
 
     public static final String MY_REQUESTS_PATH = BASE_PATH + "/myrequests";
     public static final String MY_REQUESTS_PATH_ID = MY_REQUESTS_PATH + "/{requestId}";
@@ -67,6 +69,14 @@ public class RequestController {
     public Page<RequestDTO> listRequests(@RequestParam(required = false) Integer pageNumber,
                                          @RequestParam(required = false) Integer pageSize) {
         return requestService.listRequests(pageNumber, pageSize);
+    }
+
+    @GetMapping(REQUESTS_DESCRIPTION_PATH)
+    @PreAuthorize("hasRole('ADMIN')")
+    public Page<RequestDTO> listRequestsByDescription(@RequestParam(required = false) Integer pageNumber,
+                                         @RequestParam(required = false) Integer pageSize,
+                                         @PathVariable("description") String description) {
+        return requestService.listRequestsByDescriptionContainingIgnoreCase(description, pageNumber, pageSize);
     }
 
     @GetMapping(REQUESTS_PATH_ID)

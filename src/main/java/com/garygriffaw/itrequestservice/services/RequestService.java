@@ -15,6 +15,8 @@ public interface RequestService {
 
     Page<RequestDTO> listRequestsByAssignedTo(String assignedToUsername, Integer pageNumber, Integer pageSize);
 
+    Page<RequestDTO> listRequestsByDescriptionContainingIgnoreCase(String description, Integer pageNumber, Integer pageSize);
+
     Optional<RequestDTO> getRequestById(Integer requestId);
 
     Optional<RequestDTO> getRequestByIdAndRequester(Integer requestId, String requesterUsername);

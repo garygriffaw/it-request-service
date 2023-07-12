@@ -140,6 +140,24 @@ public class RequestControllerIT {
 
     @WithMockUser(username = "abc", roles = "ADMIN")
     @Test
+    void testListRequestsByDescriptionContainingIgnoreCase() throws Exception {
+        mockMvc.perform(get(RequestController.REQUESTS_DESCRIPTION_PATH, "software")
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.content.length()", is(2)));
+    }
+
+    @WithMockUser(username = "abc", roles = "USER")
+    @Test
+    void testListRequestsByDescriptionContainingIgnoreCaseForbidden() throws Exception {
+        mockMvc.perform(get(RequestController.REQUESTS_DESCRIPTION_PATH, "software")
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isForbidden());
+    }
+
+    @WithMockUser(username = "abc", roles = "ADMIN")
+    @Test
     void testGetRequestById() throws Exception {
         Request testRequest = requestRepository.findAll().get(1);
 

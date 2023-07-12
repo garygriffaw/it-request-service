@@ -10,9 +10,11 @@ import java.util.Optional;
 
 public interface RequestRepository extends JpaRepository<Request, Integer> {
 
-    Page<Request> findAllByRequester(User requester, Pageable pageable);
+    Page<Request> findByRequester(User requester, Pageable pageable);
 
-    Page<Request> findAllByAssignedTo(User assignedTo, Pageable pageable);
+    Page<Request> findByAssignedTo(User assignedTo, Pageable pageable);
+
+    Page<Request> findByDescriptionContainingIgnoreCase(String description, Pageable pageable);
 
     Optional<Request> findByIdAndRequester(Integer id, User requester);
 

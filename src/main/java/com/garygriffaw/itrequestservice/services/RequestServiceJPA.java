@@ -62,7 +62,7 @@ public class RequestServiceJPA implements RequestService {
         }
 
         User requester = userMapper.userUnsecureDTOToUser(requesterDTO.get());
-        requestPage = requestRepository.findAllByRequester(requester, pageRequest);
+        requestPage = requestRepository.findByRequester(requester, pageRequest);
 
         return requestPage.map(requestMapper::requestToRequestDTO);
     }
@@ -80,7 +80,18 @@ public class RequestServiceJPA implements RequestService {
         }
 
         User assignedTo = userMapper.userUnsecureDTOToUser(assignedToDTO.get());
-        requestPage = requestRepository.findAllByAssignedTo(assignedTo, pageRequest);
+        requestPage = requestRepository.findByAssignedTo(assignedTo, pageRequest);
+
+        return requestPage.map(requestMapper::requestToRequestDTO);
+    }
+
+    @Override
+    public Page<RequestDTO> listRequestsByDescriptionContainingIgnoreCase(String description, Integer pageNumber, Integer pageSize) {
+        PageRequest pageRequest = buildPageRequest(pageNumber, pageSize);
+
+        Page<Request> requestPage;
+
+        requestPage = requestRepository.findByDescriptionContainingIgnoreCase(description, pageRequest);
 
         return requestPage.map(requestMapper::requestToRequestDTO);
     }

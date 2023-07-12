@@ -93,7 +93,7 @@ public class BootstrapData implements CommandLineRunner {
 
         Request request1 = Request.builder()
                 .title("Request 1")
-                .description("This is the description for request 1.")
+                .description("Install software.")
                 .requester(testUser1)
                 .assignedTo(testTech2)
                 .build();
@@ -101,7 +101,7 @@ public class BootstrapData implements CommandLineRunner {
 
         Request request2 = Request.builder()
                 .title("Request 2")
-                .description("This is the description for request 2.")
+                .description("Reset password.")
                 .requester(testUser2)
                 .assignedTo(testTech1)
                 .build();
@@ -109,14 +109,14 @@ public class BootstrapData implements CommandLineRunner {
 
         Request request3 = Request.builder()
                 .title("Request 3")
-                .description("This is the description for request 3.")
+                .description("Software install.")
                 .requester(testUser2)
                 .build();
         requestRepository.save(request3);
 
         Request request4 = Request.builder()
                 .title("Request 4")
-                .description("This is the description for request 4.")
+                .description("New monitor.")
                 .requester(testUser1)
                 .assignedTo(testTech1)
                 .build();

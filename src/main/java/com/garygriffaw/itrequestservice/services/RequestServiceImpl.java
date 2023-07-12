@@ -48,7 +48,7 @@ public class RequestServiceImpl implements RequestService {
                 .id(1)
                 .version(1)
                 .title("Request 1")
-                .description("This is the description.")
+                .description("Software install")
                 .requester(user1)
                 .assignedTo(tech1)
                 .createdDate(LocalDateTime.now())
@@ -60,7 +60,7 @@ public class RequestServiceImpl implements RequestService {
                 .id(2)
                 .version(1)
                 .title("Request 2")
-                .description("This is the description.")
+                .description("Reset password")
                 .requester(user2)
                 .assignedTo(tech2)
                 .createdDate(LocalDateTime.now())
@@ -72,7 +72,7 @@ public class RequestServiceImpl implements RequestService {
                 .id(3)
                 .version(1)
                 .title("Request 3")
-                .description("This is the description.")
+                .description("Install software")
                 .requester(user1)
                 .createdDate(LocalDateTime.now())
                 .updateDate(LocalDateTime.now())
@@ -83,7 +83,7 @@ public class RequestServiceImpl implements RequestService {
                 .id(4)
                 .version(1)
                 .title("Request 4")
-                .description("This is the description.")
+                .description("New monitor")
                 .requester(user2)
                 .assignedTo(tech1)
                 .createdDate(LocalDateTime.now())
@@ -116,6 +116,16 @@ public class RequestServiceImpl implements RequestService {
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
         return new PageImpl<>(new ArrayList<>(requestByAssignedToMap.values()));
+    }
+
+    @Override
+    public Page<RequestDTO> listRequestsByDescriptionContainingIgnoreCase(String description, Integer pageNumber, Integer pageSize) {
+        Map<Integer, RequestDTO> filteredMap = requestMap.entrySet()
+                .stream()
+                .filter(map -> map.getValue().getDescription().contains(description))
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+
+        return new PageImpl<>(new ArrayList<>(filteredMap.values()));
     }
 
     @Override
