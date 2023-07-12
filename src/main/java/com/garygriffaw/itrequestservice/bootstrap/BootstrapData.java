@@ -22,8 +22,8 @@ public class BootstrapData implements CommandLineRunner {
 
     public final static String TEST_USER_1 = "test_user_1";
     public final static String TEST_USER_2 = "test_user_2";
-    public final static String TEST_TECH_1 = "test_test_1";
-    public final static String TEST_TECH_2 = "test_test_2";
+    public final static String TEST_TECH_1 = "test_tech_1";
+    public final static String TEST_TECH_2 = "test_tech_2";
 
     @Transactional
     @Override
