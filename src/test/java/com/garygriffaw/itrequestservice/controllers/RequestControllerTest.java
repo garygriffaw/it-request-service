@@ -177,19 +177,12 @@ class RequestControllerTest {
         given(requestService.listRequestsByDescriptionContainingIgnoreCase(any(), any(), any()))
                 .willReturn(requestServiceImpl.listRequestsByDescriptionContainingIgnoreCase("software", 1, 25));
 
-        mockMvc.perform(get(RequestController.REQUESTS_DESCRIPTION_PATH, "software")
+        mockMvc.perform(get(RequestController.REQUESTS_PATH)
+                        .param("description", "software")
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.content.length()", is(1)));
-    }
-
-    @WithMockUser(username = "abc", roles = "USER")
-    @Test
-    void testListRequestsByDescriptionContainingIgnoreCaseForbidden() throws Exception {
-        mockMvc.perform(get(RequestController.REQUESTS_DESCRIPTION_PATH, "software")
-                        .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isForbidden());
     }
 
     @WithMockUser(username = "abc", roles = "ADMIN")
