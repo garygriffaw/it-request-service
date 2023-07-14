@@ -86,6 +86,20 @@ class RequestControllerTest {
     }
 
     @Test
+    void testListMyRequestsByDescription() throws Exception {
+        given(requestService.listRequestsByRequesterAndDescription(any() ,any() ,any(), any()))
+                .willReturn(requestServiceImpl.listRequestsByRequesterAndDescription("abc", "test", 1, 25));
+
+        mockMvc.perform(get(RequestController.MY_REQUESTS_PATH)
+                        .with(user("abc"))
+                        .param("description", "test")
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.content.length()", is(2)));
+    }
+
+    @Test
     void testGetMyRequestById() throws Exception {
         RequestDTO testRequest = requestServiceImpl.listRequests(1, 25).getContent().get(0);
 

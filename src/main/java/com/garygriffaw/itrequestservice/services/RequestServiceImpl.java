@@ -108,6 +108,17 @@ public class RequestServiceImpl implements RequestService {
     }
 
     @Override
+    public Page<RequestDTO> listRequestsByRequesterAndDescription(String requesterUsername, String description,
+                                                                  Integer pageNumber, Integer pageSize) {
+        Map<Integer, RequestDTO> requestByRequesterMap = requestMap.entrySet()
+                .stream()
+                .filter(map -> "user1".equals(map.getValue().getRequester().getUsername()))
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+
+        return new PageImpl<>(new ArrayList<>(requestByRequesterMap.values()));
+    }
+
+    @Override
     public Page<RequestDTO> listRequestsByAssignedTo(String assignedToUsername, Integer pageNumber, Integer pageSize) {
         Map<Integer, RequestDTO> requestByAssignedToMap = requestMap.entrySet()
                 .stream()

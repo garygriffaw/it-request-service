@@ -37,8 +37,13 @@ public class RequestController {
     @GetMapping(MY_REQUESTS_PATH)
     public Page<RequestDTO> listMyRequests(@RequestParam(required = false) Integer pageNumber,
                                            @RequestParam(required = false) Integer pageSize,
-                                           Authentication authentication) {
-        return requestService.listRequestsByRequester(authentication.getName(), pageNumber, pageSize);
+                                           Authentication authentication,
+                                           @RequestParam(required = false) String description) {
+        if (description != null)
+            return requestService.listRequestsByRequesterAndDescription(authentication.getName(), description,
+                    pageNumber, pageSize);
+        else
+            return requestService.listRequestsByRequester(authentication.getName(), pageNumber, pageSize);
     }
 
     @GetMapping(MY_REQUESTS_PATH_ID)

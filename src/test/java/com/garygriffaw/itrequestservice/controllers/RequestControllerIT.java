@@ -70,6 +70,17 @@ public class RequestControllerIT {
 
     @WithMockUser(username = "test_user_2")
     @Test
+    void testListMyRequestsByDescription() throws Exception {
+        mockMvc.perform(get(RequestController.MY_REQUESTS_PATH)
+                        .param("description", "software")
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.content.length()", is(1)));
+    }
+
+    @WithMockUser(username = "test_user_2")
+    @Test
     void testGetMyRequestById() throws Exception {
         Request testRequest = requestRepository.findAll().get(1);
 

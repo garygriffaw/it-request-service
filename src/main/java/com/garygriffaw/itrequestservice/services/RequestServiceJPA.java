@@ -68,6 +68,26 @@ public class RequestServiceJPA implements RequestService {
     }
 
     @Override
+    public Page<RequestDTO> listRequestsByRequesterAndDescription(String requesterUsername, String description,
+                                                                  Integer pageNumber, Integer pageSize) {
+        PageRequest pageRequest = buildPageRequest(pageNumber, pageSize);
+
+        Page<Request> requestPage;
+
+        Optional<UserUnsecureDTO> requesterDTO = userService.getUserByUsernameUnsec(requesterUsername);
+
+        if (requesterDTO.isEmpty()) {
+            return Page.empty();
+        }
+
+        User requester = userMapper.userUnsecureDTOToUser(requesterDTO.get());
+        String descLike = getLikeValue(description);
+        requestPage = requestRepository.findByRequesterAndDescription(requester, descLike, pageRequest);
+
+        return requestPage.map(requestMapper::requestToRequestDTO);
+    }
+
+    @Override
     public Page<RequestDTO> listRequestsByAssignedTo(String assignedToUsername, Integer pageNumber, Integer pageSize) {
         PageRequest pageRequest = buildPageRequest(pageNumber, pageSize);
 
@@ -297,5 +317,9 @@ public class RequestServiceJPA implements RequestService {
 
         return foundUserUnsecureDTO.map(userMapper::userUnsecureDTOToUser)
                 .orElseThrow(ChangeSetPersister.NotFoundException::new);
+    }
+
+    private String getLikeValue(String value) {
+        return "%" + value.trim() + "%";
     }
 }
