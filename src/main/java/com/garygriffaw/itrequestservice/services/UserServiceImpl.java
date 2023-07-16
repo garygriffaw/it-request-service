@@ -1,91 +1,94 @@
 package com.garygriffaw.itrequestservice.services;
 
+import com.garygriffaw.itrequestservice.entities.User;
+import com.garygriffaw.itrequestservice.mappers.UserMapper;
 import com.garygriffaw.itrequestservice.model.UserAdminDTO;
 import com.garygriffaw.itrequestservice.model.UserUnsecureDTO;
+import com.garygriffaw.itrequestservice.repositories.UserRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.util.Optional;
+import java.util.concurrent.atomic.AtomicReference;
 
 @Service
+@RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
+    private final UserRepository userRepository;
+    private final UserMapper userMapper;
 
-    private Map<String, UserUnsecureDTO> userUnsecureDTOMap;
-    private Map<String, UserAdminDTO> userAdminDTOMap;
-
-    public UserServiceImpl() {
-        loadUserUnsecureDTOMap();
-        loadUserAdminDTOMap();
-    }
+    private static final int DEFAULT_PAGE = 0;
+    private static final int DEFAULT_PAGE_SIZE = 25;
+    private static final int MAX_PAGE_SIZE = 1000;
 
     @Override
     public Optional<UserUnsecureDTO> getUserByUsernameUnsec(String username) {
-        return Optional.of(userUnsecureDTOMap.get(username));
+        return Optional.ofNullable(userMapper.userToUserUnsecureDTO(userRepository.findByUsername(username)
+                .orElse(null)));
     }
 
     @Override
     public Page<UserAdminDTO> listUsers(Integer pageNumber, Integer pageSize) {
-        return new PageImpl<>(new ArrayList<>(userAdminDTOMap.values()));
+        PageRequest pageRequest = buildPageRequest(pageNumber, pageSize);
+
+        Page<User> userPage;
+
+        userPage = userRepository.findAll(pageRequest);
+
+        return userPage.map(userMapper::userToUserAdminDTO);
     }
 
     @Override
     public Optional<UserAdminDTO> getUserByUsername(String username) {
-        return Optional.of(userAdminDTOMap.get(username));
+        return Optional.ofNullable(userMapper.userToUserAdminDTO(userRepository.findByUsername(username)
+                .orElse(null)));
     }
 
     @Override
     public Optional<UserAdminDTO> updateUserByUsername(String username, UserAdminDTO userDTO) {
-        UserAdminDTO existing = userAdminDTOMap.get(username);
-        existing.setFirstname(userDTO.getFirstname());
-        existing.setLastname(userDTO.getLastname());
-        existing.setEmail(userDTO.getEmail());
-        existing.setRoles(userDTO.getRoles());
+        AtomicReference<Optional<UserAdminDTO>> atomicReference = new AtomicReference<>();
 
-        return Optional.of(existing);
+        User user = userMapper.userAdminDTOToUser(userDTO);
+
+        userRepository.findByUsername(username).ifPresentOrElse(foundUser -> {
+            foundUser.setFirstname(user.getFirstname());
+            foundUser.setLastname(user.getLastname());
+            foundUser.setEmail(user.getEmail());
+            foundUser.setRoles(user.getRoles());
+            atomicReference.set(Optional.of(userMapper.userToUserAdminDTO(userRepository.save(foundUser))));
+        }, () -> {
+            atomicReference.set(Optional.empty());
+        });
+
+        return atomicReference.get();
     }
 
-    private void loadUserUnsecureDTOMap() {
-        this.userUnsecureDTOMap = new HashMap<>();
+    private PageRequest buildPageRequest(Integer pageNumber, Integer pageSize) {
+        int queryPageNumber = getPageNumber(pageNumber);
+        int queryPageSize = getPageSize(pageSize);
 
-        UserUnsecureDTO userUnsecureDTO1 = UserUnsecureDTO.builder()
-                .id(1)
-                .username("user1")
-                .firstname("User 1")
-                .lastname("Smith")
-                .email("a@a.aa")
-                .build();
-        userUnsecureDTOMap.put(userUnsecureDTO1.getUsername(), userUnsecureDTO1);
+        Sort sort = Sort.by(Sort.Order.asc("username"));
 
-        UserUnsecureDTO userUnsecureDTO2 = UserUnsecureDTO.builder()
-                .id(2)
-                .username("user2")
-                .firstname("User 2")
-                .lastname("Jones")
-                .email("a@a.aa")
-                .build();
-        userUnsecureDTOMap.put(userUnsecureDTO2.getUsername(), userUnsecureDTO2);
+        return PageRequest.of(queryPageNumber, queryPageSize, sort);
     }
 
-    private void loadUserAdminDTOMap() {
-        this.userAdminDTOMap = new HashMap<>();
+    private Integer getPageNumber(Integer pageNumber) {
+        if (pageNumber != null && pageNumber > 0)
+            return pageNumber - 1;
 
-        UserAdminDTO userAdminDTO1 = UserAdminDTO.builder()
-                .id(1)
-                .username("user1")
-                .firstname("User 1")
-                .lastname("Smith")
-                .email("a@a.aa")
-                .build();
-        userAdminDTOMap.put(userAdminDTO1.getUsername(), userAdminDTO1);
+        return DEFAULT_PAGE;
+    }
 
-        UserAdminDTO userAdminDTO2 = UserAdminDTO.builder()
-                .id(2)
-                .username("user2")
-                .firstname("User 2")
-                .lastname("Jones")
-                .email("a@a.aa")
-                .build();
-        userAdminDTOMap.put(userAdminDTO2.getUsername(), userAdminDTO2);
+    private Integer getPageSize(Integer pageSize) {
+        if (pageSize == null)
+            return DEFAULT_PAGE_SIZE;
+
+        if (pageSize > MAX_PAGE_SIZE)
+            return MAX_PAGE_SIZE;
+
+        return pageSize;
     }
 }
