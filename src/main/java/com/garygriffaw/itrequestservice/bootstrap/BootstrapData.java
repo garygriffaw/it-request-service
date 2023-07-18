@@ -1,10 +1,13 @@
 package com.garygriffaw.itrequestservice.bootstrap;
 
 import com.garygriffaw.itrequestservice.entities.Request;
+import com.garygriffaw.itrequestservice.entities.RequestStatus;
 import com.garygriffaw.itrequestservice.entities.Role;
 import com.garygriffaw.itrequestservice.entities.User;
+import com.garygriffaw.itrequestservice.enums.RequestStatusEnum;
 import com.garygriffaw.itrequestservice.enums.RoleEnum;
 import com.garygriffaw.itrequestservice.repositories.RequestRepository;
+import com.garygriffaw.itrequestservice.repositories.RequestStatusRepository;
 import com.garygriffaw.itrequestservice.repositories.RoleRepository;
 import com.garygriffaw.itrequestservice.repositories.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +21,7 @@ public class BootstrapData implements CommandLineRunner {
 
     private final RoleRepository roleRepository;
     private final RequestRepository requestRepository;
+    private final RequestStatusRepository requestStatusRepository;
     private final UserRepository userRepository;
 
     public final static String TEST_USER_1 = "test_user_1";
@@ -30,6 +34,7 @@ public class BootstrapData implements CommandLineRunner {
     public void run(String... args) throws Exception {
         loadRoleData();
         loadUserData();
+        loadRequestStatusData();
         loadRequestData();
     }
 
@@ -83,6 +88,38 @@ public class BootstrapData implements CommandLineRunner {
                 .build();
         user1.addRole(userRole);
         userRepository.save(tech2);
+    }
+
+    private void loadRequestStatusData() {
+        RequestStatus created = RequestStatus.builder()
+                .requestStatus(RequestStatusEnum.CREATED)
+                .requestStatusDisplay(RequestStatusEnum.CREATED.displayValue)
+                .build();
+        requestStatusRepository.save(created);
+
+        RequestStatus assigned = RequestStatus.builder()
+                .requestStatus(RequestStatusEnum.ASSIGNED)
+                .requestStatusDisplay(RequestStatusEnum.ASSIGNED.displayValue)
+                .build();
+        requestStatusRepository.save(assigned);
+
+        RequestStatus inWork = RequestStatus.builder()
+                .requestStatus(RequestStatusEnum.IN_WORK)
+                .requestStatusDisplay(RequestStatusEnum.IN_WORK.displayValue)
+                .build();
+        requestStatusRepository.save(inWork);
+
+        RequestStatus complete = RequestStatus.builder()
+                .requestStatus(RequestStatusEnum.COMPLETE)
+                .requestStatusDisplay(RequestStatusEnum.COMPLETE.displayValue)
+                .build();
+        requestStatusRepository.save(complete);
+
+        RequestStatus cancelled = RequestStatus.builder()
+                .requestStatus(RequestStatusEnum.CANCELLED)
+                .requestStatusDisplay(RequestStatusEnum.CANCELLED.displayValue)
+                .build();
+        requestStatusRepository.save(cancelled);
     }
 
     private void loadRequestData() {
