@@ -2,7 +2,9 @@ package com.garygriffaw.itrequestservice.repositories;
 
 import com.garygriffaw.itrequestservice.bootstrap.BootstrapData;
 import com.garygriffaw.itrequestservice.entities.Request;
+import com.garygriffaw.itrequestservice.entities.RequestStatus;
 import com.garygriffaw.itrequestservice.entities.User;
+import com.garygriffaw.itrequestservice.enums.RequestStatusEnum;
 import jakarta.validation.ConstraintViolationException;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,15 +25,20 @@ class RequestRepositoryTest {
     @Autowired
     UserRepository userRepository;
 
+    @Autowired
+    RequestStatusRepository requestStatusRepository;
+
     @Transactional
     @Test
     void testSaveRequest() {
         User testUser = userRepository.findByUsername(BootstrapData.TEST_USER_1).get();
+        RequestStatus requestStatus = requestStatusRepository.findByRequestStatus(RequestStatusEnum.CREATED).get();
 
         Request testRequest = Request.builder()
                 .title("Test Title")
                 .description("Test Description")
                 .requester(testUser)
+                .requestStatus(requestStatus)
                 .build();
 
         Request savedRequest = requestRepository.save(testRequest);

@@ -3,13 +3,14 @@ package com.garygriffaw.itrequestservice.controllers;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.garygriffaw.itrequestservice.bootstrap.BootstrapData;
 import com.garygriffaw.itrequestservice.entities.Request;
+import com.garygriffaw.itrequestservice.entities.RequestStatus;
 import com.garygriffaw.itrequestservice.entities.User;
+import com.garygriffaw.itrequestservice.enums.RequestStatusEnum;
+import com.garygriffaw.itrequestservice.mappers.RequestStatusMapper;
 import com.garygriffaw.itrequestservice.mappers.UserMapper;
-import com.garygriffaw.itrequestservice.model.RequestAssignedToDTO;
-import com.garygriffaw.itrequestservice.model.RequestDTO;
-import com.garygriffaw.itrequestservice.model.RequestRequesterDTO;
-import com.garygriffaw.itrequestservice.model.UserUnsecureDTO;
+import com.garygriffaw.itrequestservice.model.*;
 import com.garygriffaw.itrequestservice.repositories.RequestRepository;
+import com.garygriffaw.itrequestservice.repositories.RequestStatusRepository;
 import com.garygriffaw.itrequestservice.repositories.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -44,6 +45,12 @@ public class RequestControllerIT {
 
     @Autowired
     UserMapper userMapper;
+
+    @Autowired
+    RequestStatusRepository requestStatusRepository;
+
+    @Autowired
+    RequestStatusMapper requestStatusMapper;
 
     @Autowired
     WebApplicationContext wac;
@@ -249,12 +256,15 @@ public class RequestControllerIT {
         final User updateUser = userRepository.findByUsername(BootstrapData.TEST_USER_1).get();
         final UserUnsecureDTO updateUserDTO = userMapper.userToUserUnsecureDTO(updateUser);
         final String updateResolution = getUpdatedString(testRequest.getResolution());
+        final RequestStatus updateRequestStatus = requestStatusRepository.findByRequestStatus(RequestStatusEnum.IN_WORK).get();
+        final RequestStatusDTO updateRequestStatusDTO = requestStatusMapper.requestStatusToRequestStatusDTO(updateRequestStatus);
         RequestDTO testDTO = RequestDTO.builder()
                 .id(testRequest.getId())
                 .version(testRequest.getVersion())
                 .title(updateTitle)
                 .description(updateDescription)
                 .requester(updateUserDTO)
+                .requestStatus(updateRequestStatusDTO)
                 .resolution(updateResolution)
                 .build();
 
@@ -269,6 +279,7 @@ public class RequestControllerIT {
         assertThat(updatedRequest.getDescription()).isEqualTo(updateDescription);
         assertThat(updatedRequest.getRequester().getUsername()).isEqualTo(updateUser.getUsername());
         assertThat(updatedRequest.getResolution()).isEqualTo(updateResolution);
+        assertThat(updatedRequest.getRequestStatus()).isEqualTo(updateRequestStatus);
     }
 
     @WithMockUser(username = BootstrapData.TEST_USER_2, roles = "ADMIN")
@@ -282,12 +293,15 @@ public class RequestControllerIT {
         final User updateUser = userRepository.findByUsername(BootstrapData.TEST_USER_1).get();
         final UserUnsecureDTO updateUserDTO = userMapper.userToUserUnsecureDTO(updateUser);
         final String updateResolution = getUpdatedString(testRequest.getResolution());
+        final RequestStatus updateRequestStatus = requestStatusRepository.findByRequestStatus(RequestStatusEnum.IN_WORK).get();
+        final RequestStatusDTO updateRequestStatusDTO = requestStatusMapper.requestStatusToRequestStatusDTO(updateRequestStatus);
         RequestDTO testDTO = RequestDTO.builder()
                 .id(testRequest.getId())
                 .version(testRequest.getVersion())
                 .title(updateTitle)
                 .description(updateDescription)
                 .requester(updateUserDTO)
+                .requestStatus(updateRequestStatusDTO)
                 .resolution(updateResolution)
                 .build();
 
@@ -296,6 +310,37 @@ public class RequestControllerIT {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(testDTO)))
                 .andExpect(status().isNotFound());
+    }
+
+    @WithMockUser(username = BootstrapData.TEST_USER_2, roles = "ADMIN")
+    @Rollback
+    @Transactional
+    @Test
+    void testUpdateRequestInvalidRequestStatus() throws Exception {
+        Request testRequest = requestRepository.findAll().get(1);
+        final String updateTitle = getUpdatedString(testRequest.getTitle());
+        final String updateDescription = getUpdatedString(testRequest.getDescription());
+        final User updateUser = userRepository.findByUsername(BootstrapData.TEST_USER_1).get();
+        final UserUnsecureDTO updateUserDTO = userMapper.userToUserUnsecureDTO(updateUser);
+        final String updateResolution = getUpdatedString(testRequest.getResolution());
+        final RequestStatusDTO updateRequestStatusDTO = RequestStatusDTO.builder()
+                .requestStatus("TEST_STATUS")
+                .build();
+        RequestDTO testDTO = RequestDTO.builder()
+                .id(testRequest.getId())
+                .version(testRequest.getVersion())
+                .title(updateTitle)
+                .description(updateDescription)
+                .requester(updateUserDTO)
+                .requestStatus(updateRequestStatusDTO)
+                .resolution(updateResolution)
+                .build();
+
+        mockMvc.perform(put(RequestController.REQUESTS_PATH_ID, testRequest.getId())
+                        .accept(MediaType.APPLICATION_JSON)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(testDTO)))
+                .andExpect(status().isBadRequest());
     }
 
     @WithMockUser(username = BootstrapData.TEST_USER_2)

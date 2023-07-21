@@ -29,6 +29,9 @@ public class RequestDTO {
 
     private UserUnsecureDTO requester;
 
+    @NotNull(message = "Request Status must have a value.")
+    private RequestStatusDTO requestStatus;
+
     private UserUnsecureDTO assignedTo;
 
     private String resolution;

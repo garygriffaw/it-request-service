@@ -128,10 +128,16 @@ public class BootstrapData implements CommandLineRunner {
         User testTech1 = userRepository.findByUsername(TEST_TECH_1).get();
         User testTech2 = userRepository.findByUsername(TEST_TECH_2).get();
 
+        RequestStatus created = requestStatusRepository.findByRequestStatus(RequestStatusEnum.CREATED).get();
+        RequestStatus assigned = requestStatusRepository.findByRequestStatus(RequestStatusEnum.ASSIGNED).get();
+        RequestStatus inWork = requestStatusRepository.findByRequestStatus(RequestStatusEnum.IN_WORK).get();
+        RequestStatus complete = requestStatusRepository.findByRequestStatus(RequestStatusEnum.COMPLETE).get();
+
         Request request1 = Request.builder()
                 .title("Request 1")
                 .description("Install software.")
                 .requester(testUser1)
+                .requestStatus(assigned)
                 .assignedTo(testTech2)
                 .build();
         requestRepository.save(request1);
@@ -140,6 +146,7 @@ public class BootstrapData implements CommandLineRunner {
                 .title("Request 2")
                 .description("Reset password.")
                 .requester(testUser2)
+                .requestStatus(inWork)
                 .assignedTo(testTech1)
                 .build();
         requestRepository.save(request2);
@@ -148,6 +155,7 @@ public class BootstrapData implements CommandLineRunner {
                 .title("Request 3")
                 .description("Software install.")
                 .requester(testUser2)
+                .requestStatus(created)
                 .build();
         requestRepository.save(request3);
 
@@ -155,6 +163,7 @@ public class BootstrapData implements CommandLineRunner {
                 .title("Request 4")
                 .description("New monitor.")
                 .requester(testUser1)
+                .requestStatus(complete)
                 .assignedTo(testTech1)
                 .build();
         requestRepository.save(request4);

@@ -2,14 +2,14 @@ package com.garygriffaw.itrequestservice.services;
 
 import com.garygriffaw.itrequestservice.config.JwtService;
 import com.garygriffaw.itrequestservice.entities.Request;
+import com.garygriffaw.itrequestservice.entities.RequestStatus;
 import com.garygriffaw.itrequestservice.entities.User;
+import com.garygriffaw.itrequestservice.enums.RequestStatusEnum;
 import com.garygriffaw.itrequestservice.exceptions.ValueNotFoundException;
 import com.garygriffaw.itrequestservice.mappers.RequestMapper;
+import com.garygriffaw.itrequestservice.mappers.RequestStatusMapper;
 import com.garygriffaw.itrequestservice.mappers.UserMapper;
-import com.garygriffaw.itrequestservice.model.RequestAssignedToDTO;
-import com.garygriffaw.itrequestservice.model.RequestDTO;
-import com.garygriffaw.itrequestservice.model.RequestRequesterDTO;
-import com.garygriffaw.itrequestservice.model.UserUnsecureDTO;
+import com.garygriffaw.itrequestservice.model.*;
 import com.garygriffaw.itrequestservice.repositories.RequestRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -27,6 +27,8 @@ import java.util.concurrent.atomic.AtomicReference;
 public class RequestServiceImpl implements RequestService {
     private final RequestRepository requestRepository;
     private final RequestMapper requestMapper;
+    private final RequestStatusService requestStatusService;
+    private final RequestStatusMapper requestStatusMapper;
     private final UserService userService;
     private final UserMapper userMapper;
     private final JwtService jwtService;
@@ -156,10 +158,17 @@ public class RequestServiceImpl implements RequestService {
             return Optional.empty();
         }
 
+        Optional<RequestStatusDTO> requestStatusDTO = requestStatusService.getRequestStatusByRequestStatus(RequestStatusEnum.CREATED);
+
+        if (requestStatusDTO.isEmpty()) {
+            return Optional.empty();
+        }
+
         RequestDTO requestDTO = RequestDTO.builder()
                 .title(requestRequesterDTO.getTitle())
                 .description(requestRequesterDTO.getDescription())
                 .requester(requesterDTO.get())
+                .requestStatus(requestStatusDTO.get())
                 .build();
 
         return Optional.of(requestMapper.requestToRequestDTO(requestRepository.save(requestMapper.requestDTOToRequest(requestDTO))));
@@ -171,11 +180,13 @@ public class RequestServiceImpl implements RequestService {
 
         User requester = getRequesterUser(requestDTO.getRequester());
         User assignedTo = getAssignedToUser(requestDTO.getAssignedTo());
+        RequestStatus requestStatus = getRequestStatus(requestDTO.getRequestStatus());
 
         requestRepository.findById(requestId).ifPresentOrElse(foundRequest -> {
             foundRequest.setTitle(requestDTO.getTitle());
             foundRequest.setDescription(requestDTO.getDescription());
             foundRequest.setRequester(requester);
+            foundRequest.setRequestStatus(requestStatus);
             foundRequest.setAssignedTo(assignedTo);
             foundRequest.setResolution(requestDTO.getResolution());
             atomicReference.set(Optional.of(requestMapper.requestToRequestDTO(requestRepository.save(foundRequest))));
@@ -315,6 +326,28 @@ public class RequestServiceImpl implements RequestService {
 
         return foundUserUnsecureDTO.map(userMapper::userUnsecureDTOToUser)
                 .orElseThrow(ChangeSetPersister.NotFoundException::new);
+    }
+
+    private RequestStatus getRequestStatus(RequestStatusDTO requestStatusDTO) {
+        try {
+            if (requestStatusDTO == null) {
+                throw new ChangeSetPersister.NotFoundException();
+            }
+
+            Optional<RequestStatusEnum> requestStatusEnum = RequestStatusEnum.findByName(requestStatusDTO.getRequestStatus());
+
+            if (requestStatusEnum.isEmpty()) {
+                throw new ChangeSetPersister.NotFoundException();
+            }
+
+            Optional<RequestStatusDTO> foundRequestStatusDTO =
+                    requestStatusService.getRequestStatusByRequestStatus(requestStatusEnum.get());
+
+            return foundRequestStatusDTO.map(requestStatusMapper::requestStatusDTOToRequestStatus)
+                    .orElseThrow(ChangeSetPersister.NotFoundException::new);
+        } catch (ChangeSetPersister.NotFoundException e) {
+            throw new ValueNotFoundException("Request Status not found");
+        }
     }
 
     private String getLikeValue(String value) {

@@ -11,8 +11,7 @@ import lombok.Data;
 public class RequestStatusDTO {
     private Integer id;
 
-    @Enumerated(EnumType.STRING)
-    private RequestStatusEnum requestStatus;
+    private String requestStatus;
 
     private String requestStatusDisplay;
 }

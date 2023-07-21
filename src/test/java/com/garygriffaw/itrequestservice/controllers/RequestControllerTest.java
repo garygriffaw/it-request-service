@@ -3,10 +3,8 @@ package com.garygriffaw.itrequestservice.controllers;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.garygriffaw.itrequestservice.config.JwtService;
 import com.garygriffaw.itrequestservice.config.SecurityConfiguration;
-import com.garygriffaw.itrequestservice.model.RequestAssignedToDTO;
-import com.garygriffaw.itrequestservice.model.RequestDTO;
-import com.garygriffaw.itrequestservice.model.RequestRequesterDTO;
-import com.garygriffaw.itrequestservice.model.UserUnsecureDTO;
+import com.garygriffaw.itrequestservice.enums.RequestStatusEnum;
+import com.garygriffaw.itrequestservice.model.*;
 import com.garygriffaw.itrequestservice.services.RequestService;
 import com.garygriffaw.itrequestservice.token.TokenRepository;
 import org.junit.jupiter.api.Test;
@@ -505,12 +503,18 @@ class RequestControllerTest {
                 .email("jane@mail.com")
                 .build();
 
+        RequestStatusDTO requestStatus = RequestStatusDTO.builder()
+                .id(1)
+                .requestStatus(RequestStatusEnum.CREATED.name())
+                .build();
+
         return RequestDTO.builder()
                 .id(1)
                 .version(0)
                 .title("Test title")
                 .description("Test description")
                 .requester(requester)
+                .requestStatus(requestStatus)
                 .assignedTo(assignedTo)
                 .resolution("Test resolution")
                 .build();

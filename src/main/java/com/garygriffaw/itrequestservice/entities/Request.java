@@ -17,12 +17,13 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 public class Request {
 
-    public Request(Integer id, Integer version, @NotNull String title, @NotNull String description, User requester, User assignedTo, String resolution, LocalDateTime createdDate, LocalDateTime updateDate) {
+    public Request(Integer id, Integer version, @NotNull String title, @NotNull String description, User requester, RequestStatus requestStatus, User assignedTo, String resolution, LocalDateTime createdDate, LocalDateTime updateDate) {
         this.id = id;
         this.version = version;
         this.title = title;
         this.description = description;
         this.setRequester(requester);
+        this.requestStatus = requestStatus;
         this.setAssignedTo(assignedTo);
         this.resolution = resolution;
         this.createdDate = createdDate;
@@ -52,6 +53,11 @@ public class Request {
     @ManyToOne
     @JoinColumn(name = "requester_user_id")
     private User requester;
+
+    @ManyToOne
+    @NotNull(message = "Request Status must have a value.")
+    @JoinColumn(name = "request_status_id")
+    private RequestStatus requestStatus;
 
     @ManyToOne
     @JoinColumn(name = "assigned_to_user_id")
