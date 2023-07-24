@@ -256,7 +256,7 @@ public class RequestControllerIT {
         final User updateUser = userRepository.findByUsername(BootstrapData.TEST_USER_1).get();
         final UserUnsecureDTO updateUserDTO = userMapper.userToUserUnsecureDTO(updateUser);
         final String updateResolution = getUpdatedString(testRequest.getResolution());
-        final RequestStatus updateRequestStatus = requestStatusRepository.findByRequestStatus(RequestStatusEnum.IN_WORK).get();
+        final RequestStatus updateRequestStatus = requestStatusRepository.findByRequestStatusCode(RequestStatusEnum.IN_WORK).get();
         final RequestStatusDTO updateRequestStatusDTO = requestStatusMapper.requestStatusToRequestStatusDTO(updateRequestStatus);
         RequestDTO testDTO = RequestDTO.builder()
                 .id(testRequest.getId())
@@ -293,7 +293,7 @@ public class RequestControllerIT {
         final User updateUser = userRepository.findByUsername(BootstrapData.TEST_USER_1).get();
         final UserUnsecureDTO updateUserDTO = userMapper.userToUserUnsecureDTO(updateUser);
         final String updateResolution = getUpdatedString(testRequest.getResolution());
-        final RequestStatus updateRequestStatus = requestStatusRepository.findByRequestStatus(RequestStatusEnum.IN_WORK).get();
+        final RequestStatus updateRequestStatus = requestStatusRepository.findByRequestStatusCode(RequestStatusEnum.IN_WORK).get();
         final RequestStatusDTO updateRequestStatusDTO = requestStatusMapper.requestStatusToRequestStatusDTO(updateRequestStatus);
         RequestDTO testDTO = RequestDTO.builder()
                 .id(testRequest.getId())
@@ -324,7 +324,7 @@ public class RequestControllerIT {
         final UserUnsecureDTO updateUserDTO = userMapper.userToUserUnsecureDTO(updateUser);
         final String updateResolution = getUpdatedString(testRequest.getResolution());
         final RequestStatusDTO updateRequestStatusDTO = RequestStatusDTO.builder()
-                .requestStatus("TEST_STATUS")
+                .requestStatusCode("TEST_STATUS")
                 .build();
         RequestDTO testDTO = RequestDTO.builder()
                 .id(testRequest.getId())
@@ -428,6 +428,8 @@ public class RequestControllerIT {
         final String updateTitle = getUpdatedString(testRequest.getTitle());
         final String updateDescription = getUpdatedString(testRequest.getDescription());
         final UserUnsecureDTO updateUser = userMapper.userToUserUnsecureDTO(userRepository.findByUsername(BootstrapData.TEST_USER_1).get());
+        final RequestStatus updateRequestStatus = requestStatusRepository.findByRequestStatusCode(RequestStatusEnum.COMPLETE).get();
+        final RequestStatusDTO updateRequestStatusDTO = requestStatusMapper.requestStatusToRequestStatusDTO(updateRequestStatus);
         final String updateResolution = getUpdatedString(testRequest.getResolution());
         RequestDTO testDTO = RequestDTO.builder()
                 .id(testRequest.getId())
@@ -435,6 +437,7 @@ public class RequestControllerIT {
                 .title(updateTitle)
                 .description(updateDescription)
                 .requester(updateUser)
+                .requestStatus(updateRequestStatusDTO)
                 .resolution(updateResolution)
                 .build();
 
@@ -445,6 +448,7 @@ public class RequestControllerIT {
                 .andExpect(status().isNoContent());
 
         Request updatedRequest = requestRepository.findById(testDTO.getId()).get();
+        assertThat(updatedRequest.getRequestStatus()).isEqualTo(updateRequestStatus);
         assertThat(updatedRequest.getResolution()).isEqualTo(updateResolution);
 
         // These should not be updated
@@ -457,10 +461,13 @@ public class RequestControllerIT {
     @Test
     void testAssignedToUpdateRequestNotFound() throws Exception {
         Request testRequest = requestRepository.findAll().get(1);
+        final RequestStatus updateRequestStatus = requestStatusRepository.findByRequestStatusCode(RequestStatusEnum.COMPLETE).get();
+        final RequestStatusDTO updateRequestStatusDTO = requestStatusMapper.requestStatusToRequestStatusDTO(updateRequestStatus);
         final String updateResolution = getUpdatedString(testRequest.getResolution());
         RequestAssignedToDTO testDTO = RequestAssignedToDTO.builder()
                 .id(testRequest.getId())
                 .version(testRequest.getVersion())
+                .requestStatus(updateRequestStatusDTO)
                 .resolution(updateResolution)
                 .build();
 
@@ -475,10 +482,13 @@ public class RequestControllerIT {
     @Test
     void testAssignedToUpdateRequestWrongRequester() throws Exception {
         Request testRequest = requestRepository.findAll().get(1);
+        final RequestStatus updateRequestStatus = requestStatusRepository.findByRequestStatusCode(RequestStatusEnum.COMPLETE).get();
+        final RequestStatusDTO updateRequestStatusDTO = requestStatusMapper.requestStatusToRequestStatusDTO(updateRequestStatus);
         final String updateResolution = getUpdatedString(testRequest.getResolution());
         RequestAssignedToDTO testDTO = RequestAssignedToDTO.builder()
                 .id(testRequest.getId())
                 .version(testRequest.getVersion())
+                .requestStatus(updateRequestStatusDTO)
                 .resolution(updateResolution)
                 .build();
 
@@ -487,6 +497,48 @@ public class RequestControllerIT {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(testDTO)))
                 .andExpect(status().isNotFound());
+    }
+
+    @WithMockUser(username = BootstrapData.TEST_TECH_1)
+    @Test
+    void testAssignedToUpdateInvalidStatusResolutionCombinationAssigned() throws Exception {
+        Request testRequest = requestRepository.findAll().get(1);
+        final RequestStatus updateRequestStatus = requestStatusRepository.findByRequestStatusCode(RequestStatusEnum.ASSIGNED).get();
+        final RequestStatusDTO updateRequestStatusDTO = requestStatusMapper.requestStatusToRequestStatusDTO(updateRequestStatus);
+        final String updateResolution = getUpdatedString(testRequest.getResolution());
+        RequestAssignedToDTO testDTO = RequestAssignedToDTO.builder()
+                .id(testRequest.getId())
+                .version(testRequest.getVersion())
+                .requestStatus(updateRequestStatusDTO)
+                .resolution(updateResolution)
+                .build();
+
+        mockMvc.perform(put(RequestController.ASSIGNED_TO_REQUESTS_PATH_ID, testRequest.getId())
+                        .accept(MediaType.APPLICATION_JSON)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(testDTO)))
+                .andExpect(status().isBadRequest());
+    }
+
+    @WithMockUser(username = BootstrapData.TEST_TECH_1)
+    @Test
+    void testAssignedToUpdateInvalidStatusResolutionCombinationComplete() throws Exception {
+        Request testRequest = requestRepository.findAll().get(1);
+        final RequestStatus updateRequestStatus = requestStatusRepository.findByRequestStatusCode(RequestStatusEnum.COMPLETE).get();
+        final RequestStatusDTO updateRequestStatusDTO = requestStatusMapper.requestStatusToRequestStatusDTO(updateRequestStatus);
+        final String updateResolution = null;
+        RequestAssignedToDTO testDTO = RequestAssignedToDTO.builder()
+                .id(testRequest.getId())
+                .version(testRequest.getVersion())
+                .requestStatus(updateRequestStatusDTO)
+                .resolution(updateResolution)
+                .build();
+
+        mockMvc.perform(put(RequestController.ASSIGNED_TO_REQUESTS_PATH_ID, testRequest.getId())
+                        .accept(MediaType.APPLICATION_JSON)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(testDTO)))
+                .andExpect(status().isBadRequest());
     }
 
     @WithMockUser(username = BootstrapData.TEST_USER_2, roles = "ADMIN")

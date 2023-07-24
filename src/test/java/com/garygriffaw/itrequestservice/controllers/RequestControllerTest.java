@@ -505,7 +505,7 @@ class RequestControllerTest {
 
         RequestStatusDTO requestStatus = RequestStatusDTO.builder()
                 .id(1)
-                .requestStatus(RequestStatusEnum.CREATED.name())
+                .requestStatusCode(RequestStatusEnum.CREATED.name())
                 .build();
 
         return RequestDTO.builder()

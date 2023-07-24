@@ -1,5 +1,6 @@
 package com.garygriffaw.itrequestservice.controllers;
 
+import com.garygriffaw.itrequestservice.exceptions.InvalidCombinationException;
 import com.garygriffaw.itrequestservice.exceptions.UsernameAlreadyExistsException;
 import com.garygriffaw.itrequestservice.exceptions.ValueNotFoundException;
 import org.springframework.http.ResponseEntity;
@@ -46,6 +47,21 @@ public class CustomErrorController {
 
     @ExceptionHandler(ValueNotFoundException.class)
     ResponseEntity handleValueNotFoundException(ValueNotFoundException exception) {
+        List<String> messages = new ArrayList<>();
+        messages.add(exception.getMessage());
+
+        List errorList = messages.stream()
+                .map(message -> {
+                    Map<String, String> errorMap = new HashMap<>();
+                    errorMap.put("errorMsg", message);
+                    return errorMap;
+                }).collect(Collectors.toList());
+
+        return ResponseEntity.badRequest().body(errorList);
+    }
+
+    @ExceptionHandler(InvalidCombinationException.class)
+    ResponseEntity handleInvalidCombinationExceptionException(InvalidCombinationException exception) {
         List<String> messages = new ArrayList<>();
         messages.add(exception.getMessage());
 

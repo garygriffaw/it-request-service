@@ -32,7 +32,7 @@ class RequestRepositoryTest {
     @Test
     void testSaveRequest() {
         User testUser = userRepository.findByUsername(BootstrapData.TEST_USER_1).get();
-        RequestStatus requestStatus = requestStatusRepository.findByRequestStatus(RequestStatusEnum.CREATED).get();
+        RequestStatus requestStatus = requestStatusRepository.findByRequestStatusCode(RequestStatusEnum.CREATED).get();
 
         Request testRequest = Request.builder()
                 .title("Test Title")

@@ -1,8 +1,5 @@
 package com.garygriffaw.itrequestservice.model;
 
-import com.garygriffaw.itrequestservice.enums.RequestStatusEnum;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import lombok.Builder;
 import lombok.Data;
 
@@ -11,7 +8,7 @@ import lombok.Data;
 public class RequestStatusDTO {
     private Integer id;
 
-    private String requestStatus;
+    private String requestStatusCode;
 
     private String requestStatusDisplay;
 }

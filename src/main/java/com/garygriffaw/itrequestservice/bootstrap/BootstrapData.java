@@ -92,31 +92,31 @@ public class BootstrapData implements CommandLineRunner {
 
     private void loadRequestStatusData() {
         RequestStatus created = RequestStatus.builder()
-                .requestStatus(RequestStatusEnum.CREATED)
+                .requestStatusCode(RequestStatusEnum.CREATED)
                 .requestStatusDisplay(RequestStatusEnum.CREATED.displayValue)
                 .build();
         requestStatusRepository.save(created);
 
         RequestStatus assigned = RequestStatus.builder()
-                .requestStatus(RequestStatusEnum.ASSIGNED)
+                .requestStatusCode(RequestStatusEnum.ASSIGNED)
                 .requestStatusDisplay(RequestStatusEnum.ASSIGNED.displayValue)
                 .build();
         requestStatusRepository.save(assigned);
 
         RequestStatus inWork = RequestStatus.builder()
-                .requestStatus(RequestStatusEnum.IN_WORK)
+                .requestStatusCode(RequestStatusEnum.IN_WORK)
                 .requestStatusDisplay(RequestStatusEnum.IN_WORK.displayValue)
                 .build();
         requestStatusRepository.save(inWork);
 
         RequestStatus complete = RequestStatus.builder()
-                .requestStatus(RequestStatusEnum.COMPLETE)
+                .requestStatusCode(RequestStatusEnum.COMPLETE)
                 .requestStatusDisplay(RequestStatusEnum.COMPLETE.displayValue)
                 .build();
         requestStatusRepository.save(complete);
 
         RequestStatus cancelled = RequestStatus.builder()
-                .requestStatus(RequestStatusEnum.CANCELLED)
+                .requestStatusCode(RequestStatusEnum.CANCELLED)
                 .requestStatusDisplay(RequestStatusEnum.CANCELLED.displayValue)
                 .build();
         requestStatusRepository.save(cancelled);
@@ -128,10 +128,10 @@ public class BootstrapData implements CommandLineRunner {
         User testTech1 = userRepository.findByUsername(TEST_TECH_1).get();
         User testTech2 = userRepository.findByUsername(TEST_TECH_2).get();
 
-        RequestStatus created = requestStatusRepository.findByRequestStatus(RequestStatusEnum.CREATED).get();
-        RequestStatus assigned = requestStatusRepository.findByRequestStatus(RequestStatusEnum.ASSIGNED).get();
-        RequestStatus inWork = requestStatusRepository.findByRequestStatus(RequestStatusEnum.IN_WORK).get();
-        RequestStatus complete = requestStatusRepository.findByRequestStatus(RequestStatusEnum.COMPLETE).get();
+        RequestStatus created = requestStatusRepository.findByRequestStatusCode(RequestStatusEnum.CREATED).get();
+        RequestStatus assigned = requestStatusRepository.findByRequestStatusCode(RequestStatusEnum.ASSIGNED).get();
+        RequestStatus inWork = requestStatusRepository.findByRequestStatusCode(RequestStatusEnum.IN_WORK).get();
+        RequestStatus complete = requestStatusRepository.findByRequestStatusCode(RequestStatusEnum.COMPLETE).get();
 
         Request request1 = Request.builder()
                 .title("Request 1")

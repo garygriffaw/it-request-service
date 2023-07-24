@@ -18,7 +18,7 @@ public class RequestStatus {
     private Integer id;
 
     @Enumerated(EnumType.STRING)
-    private RequestStatusEnum requestStatus;
+    private RequestStatusEnum requestStatusCode;
 
     private String requestStatusDisplay;
 }

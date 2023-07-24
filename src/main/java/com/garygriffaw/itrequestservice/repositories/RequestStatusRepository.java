@@ -8,5 +8,5 @@ import java.util.Optional;
 
 public interface RequestStatusRepository extends JpaRepository<RequestStatus, Integer> {
 
-    Optional<RequestStatus> findByRequestStatus(RequestStatusEnum requestStatus);
+    Optional<RequestStatus> findByRequestStatusCode(RequestStatusEnum requestStatusCode);
 }

@@ -26,7 +26,7 @@ public class RequestStatusServiceImpl implements RequestStatusService {
 
     @Override
     public Optional<RequestStatusDTO> getRequestStatusByRequestStatus(RequestStatusEnum requestStatus) {
-        return Optional.ofNullable(requestStatusMapper.requestStatusToRequestStatusDTO(requestStatusRepository.findByRequestStatus(requestStatus)
+        return Optional.ofNullable(requestStatusMapper.requestStatusToRequestStatusDTO(requestStatusRepository.findByRequestStatusCode(requestStatus)
                 .orElse(null)));
     }
 }

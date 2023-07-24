@@ -5,6 +5,7 @@ import com.garygriffaw.itrequestservice.entities.Request;
 import com.garygriffaw.itrequestservice.entities.RequestStatus;
 import com.garygriffaw.itrequestservice.entities.User;
 import com.garygriffaw.itrequestservice.enums.RequestStatusEnum;
+import com.garygriffaw.itrequestservice.exceptions.InvalidCombinationException;
 import com.garygriffaw.itrequestservice.exceptions.ValueNotFoundException;
 import com.garygriffaw.itrequestservice.mappers.RequestMapper;
 import com.garygriffaw.itrequestservice.mappers.RequestStatusMapper;
@@ -233,8 +234,8 @@ public class RequestServiceImpl implements RequestService {
         User assignedTo = userMapper.userUnsecureDTOToUser(assignedToDTO.get());
 
         requestRepository.findByIdAndAssignedTo(requestId, assignedTo).ifPresentOrElse(foundRequest -> {
-            foundRequest.setResolution(requestDTO.getResolution());
-            atomicReference.set(Optional.of(requestMapper.requestToRequestDTO(requestRepository.save(foundRequest))));
+            Request validatedRequest = getValidatedRequestUpdateByAssignedTo(requestDTO, foundRequest);
+            atomicReference.set(Optional.of(requestMapper.requestToRequestDTO(requestRepository.save(validatedRequest))));
         }, () -> {
             atomicReference.set(Optional.empty());
         });
@@ -334,7 +335,7 @@ public class RequestServiceImpl implements RequestService {
                 throw new ChangeSetPersister.NotFoundException();
             }
 
-            Optional<RequestStatusEnum> requestStatusEnum = RequestStatusEnum.findByName(requestStatusDTO.getRequestStatus());
+            Optional<RequestStatusEnum> requestStatusEnum = RequestStatusEnum.findByName(requestStatusDTO.getRequestStatusCode());
 
             if (requestStatusEnum.isEmpty()) {
                 throw new ChangeSetPersister.NotFoundException();
@@ -352,5 +353,35 @@ public class RequestServiceImpl implements RequestService {
 
     private String getLikeValue(String value) {
         return "%" + value.trim() + "%";
+    }
+
+    private Request getValidatedRequestUpdateByAssignedTo(RequestAssignedToDTO requestDTO, Request currentRequest) {
+        RequestStatus newRequestStatus = getRequestStatus(requestDTO.getRequestStatus());
+
+        if (!(newRequestStatus.getRequestStatusCode() == currentRequest.getRequestStatus().getRequestStatusCode() ||
+            newRequestStatus.getRequestStatusCode() == RequestStatusEnum.ASSIGNED ||
+            newRequestStatus.getRequestStatusCode() == RequestStatusEnum.IN_WORK ||
+            newRequestStatus.getRequestStatusCode() == RequestStatusEnum.COMPLETE ||
+            newRequestStatus.getRequestStatusCode() == RequestStatusEnum.CANCELLED)) {
+          throw new InvalidCombinationException("Can not change the status to " + newRequestStatus.getRequestStatusDisplay());
+        }
+
+        if ((newRequestStatus.getRequestStatusCode() == RequestStatusEnum.COMPLETE ||
+             newRequestStatus.getRequestStatusCode() == RequestStatusEnum.CANCELLED) &&
+            (requestDTO.getResolution() == null ||
+             requestDTO.getResolution().trim().length() < 5)) {
+            throw new InvalidCombinationException("Resolution must have at least 5 characters when status is " + newRequestStatus.getRequestStatusDisplay());
+        }
+
+        if (!(newRequestStatus.getRequestStatusCode() == RequestStatusEnum.COMPLETE ||
+              newRequestStatus.getRequestStatusCode() == RequestStatusEnum.CANCELLED) &&
+            requestDTO.getResolution() != null &&
+            !requestDTO.getResolution().trim().equals("")) {
+            throw new InvalidCombinationException("Resolution must be empty when status is " + newRequestStatus.getRequestStatusDisplay());
+        }
+
+        currentRequest.setRequestStatus(newRequestStatus);
+        currentRequest.setResolution(requestDTO.getResolution());
+        return currentRequest;
     }
 }

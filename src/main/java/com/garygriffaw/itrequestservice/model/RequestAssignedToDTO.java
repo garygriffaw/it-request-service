@@ -13,9 +13,9 @@ public class RequestAssignedToDTO {
     private Integer id;
     private Integer version;
 
-    @NotBlank(message = "Resolution must not be blank.")
-    @NotNull(message = "Resolution must have a value.")
-    @Size(min = 5, max = 500, message = "Resolution must be between 5 and 500 characters.")
-    @Column(length = 500)
+    @NotNull(message = "Request Status must have a value.")
+    private RequestStatusDTO requestStatus;
+
+    @Size(max = 500, message = "Resolution can be at most 500 characters.")
     private String resolution;
 }
