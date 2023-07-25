@@ -18,12 +18,16 @@ public class RequestRequesterDTO {
     @NotBlank(message = "Title must not be blank.")
     @NotNull(message = "Title must have a value.")
     @Size(min = 5, max = 50, message = "Title must be between 5 and 50 characters.")
-    @Column(length = 50)
     private String title;
 
     @NotBlank(message = "Description must not be blank.")
     @NotNull(message = "Description must have a value.")
     @Size(min = 5, max = 500, message = "Title must be between 5 and 500 characters.")
-    @Column(length = 500)
     private String description;
+
+    @NotNull(message = "Request Status must have a value.")
+    private RequestStatusDTO requestStatus;
+
+    @Size(max = 500, message = "Resolution can be at most 500 characters.")
+    private String resolution;
 }

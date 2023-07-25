@@ -200,9 +200,13 @@ public class RequestControllerIT {
     @Transactional
     @Test
     void testCreateNewRequest() throws Exception {
+        final RequestStatus newRequestStatus = requestStatusRepository.findByRequestStatusCode(RequestStatusEnum.CREATED).get();
+        final RequestStatusDTO newRequestStatusDTO = requestStatusMapper.requestStatusToRequestStatusDTO(newRequestStatus);
+
         RequestRequesterDTO newRequest = RequestRequesterDTO.builder()
                 .title("testCreateNewRequest")
                 .description("This is a test of testCreateNewRequest")
+                .requestStatus(newRequestStatusDTO)
                 .build();
 
         mockMvc.perform(post(RequestController.REQUESTS_PATH)
@@ -216,9 +220,13 @@ public class RequestControllerIT {
     @WithMockUser(username = BootstrapData.TEST_USER_2)
     @Test
     void testCreateNewRequestTitleTooShort() throws Exception {
+        final RequestStatus newRequestStatus = requestStatusRepository.findByRequestStatusCode(RequestStatusEnum.CREATED).get();
+        final RequestStatusDTO newRequestStatusDTO = requestStatusMapper.requestStatusToRequestStatusDTO(newRequestStatus);
+
         RequestRequesterDTO newRequest = RequestRequesterDTO.builder()
                 .title("test")
                 .description("This is a test of testCreateNewRequest")
+                .requestStatus(newRequestStatusDTO)
                 .build();
 
         mockMvc.perform(post(RequestController.REQUESTS_PATH)
@@ -233,9 +241,13 @@ public class RequestControllerIT {
     @Transactional
     @Test
     void testCreateNewRequestForbidden() throws Exception {
+        final RequestStatus newRequestStatus = requestStatusRepository.findByRequestStatusCode(RequestStatusEnum.CREATED).get();
+        final RequestStatusDTO newRequestStatusDTO = requestStatusMapper.requestStatusToRequestStatusDTO(newRequestStatus);
+
         RequestRequesterDTO newRequest = RequestRequesterDTO.builder()
                 .title("testCreateNewRequest")
                 .description("This is a test of testCreateNewRequest")
+                .requestStatus(newRequestStatusDTO)
                 .build();
 
         mockMvc.perform(post(RequestController.REQUESTS_PATH)
@@ -352,6 +364,8 @@ public class RequestControllerIT {
         final String updateTitle = getUpdatedString(testRequest.getTitle());
         final String updateDescription = getUpdatedString(testRequest.getDescription());
         final UserUnsecureDTO updateUser = userMapper.userToUserUnsecureDTO(userRepository.findByUsername(BootstrapData.TEST_USER_1).get());
+        final RequestStatus updateRequestStatus = requestStatusRepository.findByRequestStatusCode(RequestStatusEnum.CANCELLED).get();
+        final RequestStatusDTO updateRequestStatusDTO = requestStatusMapper.requestStatusToRequestStatusDTO(updateRequestStatus);
         final String updateResolution = getUpdatedString(testRequest.getResolution());
         RequestDTO testDTO = RequestDTO.builder()
                 .id(testRequest.getId())
@@ -359,6 +373,7 @@ public class RequestControllerIT {
                 .title(updateTitle)
                 .description(updateDescription)
                 .requester(updateUser)
+                .requestStatus(updateRequestStatusDTO)
                 .assignedTo(updateUser)
                 .resolution(updateResolution)
                 .build();
@@ -372,6 +387,7 @@ public class RequestControllerIT {
         Request updatedRequest = requestRepository.findById(testDTO.getId()).get();
         assertThat(updatedRequest.getTitle()).isEqualTo(updateTitle);
         assertThat(updatedRequest.getDescription()).isEqualTo(updateDescription);
+        assertThat(updatedRequest.getRequestStatus()).isEqualTo(updateRequestStatus);
 
         // These should not be updated
         assertThat(updatedRequest.getRequester()).isEqualTo(testRequest.getRequester());
@@ -385,11 +401,14 @@ public class RequestControllerIT {
         Request testRequest = requestRepository.findAll().get(1);
         final String updateTitle = getUpdatedString(testRequest.getTitle());
         final String updateDescription = getUpdatedString(testRequest.getDescription());
+        final RequestStatus updateRequestStatus = requestStatusRepository.findByRequestStatusCode(RequestStatusEnum.CREATED).get();
+        final RequestStatusDTO updateRequestStatusDTO = requestStatusMapper.requestStatusToRequestStatusDTO(updateRequestStatus);
         RequestRequesterDTO testDTO = RequestRequesterDTO.builder()
                 .id(testRequest.getId())
                 .version(testRequest.getVersion())
                 .title(updateTitle)
                 .description(updateDescription)
+                .requestStatus(updateRequestStatusDTO)
                 .build();
 
         mockMvc.perform(put(RequestController.MY_REQUESTS_PATH_ID, 9999)
@@ -405,11 +424,14 @@ public class RequestControllerIT {
         Request testRequest = requestRepository.findAll().get(1);
         final String updateTitle = testRequest.getTitle() + " updated";
         final String updateDescription = testRequest.getDescription() + " updated";
+        final RequestStatus updateRequestStatus = requestStatusRepository.findByRequestStatusCode(RequestStatusEnum.CREATED).get();
+        final RequestStatusDTO updateRequestStatusDTO = requestStatusMapper.requestStatusToRequestStatusDTO(updateRequestStatus);
         RequestRequesterDTO testDTO = RequestRequesterDTO.builder()
                 .id(testRequest.getId())
                 .version(testRequest.getVersion())
                 .title(updateTitle)
                 .description(updateDescription)
+                .requestStatus(updateRequestStatusDTO)
                 .build();
 
         mockMvc.perform(put(RequestController.MY_REQUESTS_PATH_ID, testRequest.getId())
@@ -417,6 +439,69 @@ public class RequestControllerIT {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(testDTO)))
                 .andExpect(status().isNotFound());
+    }
+
+    @WithMockUser(username = BootstrapData.TEST_USER_1)
+    @Test
+    void testRequesterUpdateInvalidStatusResolutionCombinationCreated() throws Exception {
+        Request testRequest = requestRepository.findAll().get(1);
+        final RequestStatus updateRequestStatus = requestStatusRepository.findByRequestStatusCode(RequestStatusEnum.CREATED).get();
+        final RequestStatusDTO updateRequestStatusDTO = requestStatusMapper.requestStatusToRequestStatusDTO(updateRequestStatus);
+        final String updateResolution = getUpdatedString(testRequest.getResolution());
+        RequestRequesterDTO testDTO = RequestRequesterDTO.builder()
+                .id(testRequest.getId())
+                .version(testRequest.getVersion())
+                .requestStatus(updateRequestStatusDTO)
+                .resolution(updateResolution)
+                .build();
+
+        mockMvc.perform(put(RequestController.MY_REQUESTS_PATH_ID, testRequest.getId())
+                        .accept(MediaType.APPLICATION_JSON)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(testDTO)))
+                .andExpect(status().isBadRequest());
+    }
+
+    @WithMockUser(username = BootstrapData.TEST_USER_1)
+    @Test
+    void testRequesterUpdateInvalidStatusResolutionCombinationCancelled() throws Exception {
+        Request testRequest = requestRepository.findAll().get(1);
+        final RequestStatus updateRequestStatus = requestStatusRepository.findByRequestStatusCode(RequestStatusEnum.CANCELLED).get();
+        final RequestStatusDTO updateRequestStatusDTO = requestStatusMapper.requestStatusToRequestStatusDTO(updateRequestStatus);
+        final String updateResolution = null;
+        RequestRequesterDTO testDTO = RequestRequesterDTO.builder()
+                .id(testRequest.getId())
+                .version(testRequest.getVersion())
+                .requestStatus(updateRequestStatusDTO)
+                .resolution(updateResolution)
+                .build();
+
+        mockMvc.perform(put(RequestController.MY_REQUESTS_PATH_ID, testRequest.getId())
+                        .accept(MediaType.APPLICATION_JSON)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(testDTO)))
+                .andExpect(status().isBadRequest());
+    }
+
+    @WithMockUser(username = BootstrapData.TEST_USER_1)
+    @Test
+    void testRequesterUpdateInvalidStatusComplete() throws Exception {
+        Request testRequest = requestRepository.findAll().get(1);
+        final RequestStatus updateRequestStatus = requestStatusRepository.findByRequestStatusCode(RequestStatusEnum.COMPLETE).get();
+        final RequestStatusDTO updateRequestStatusDTO = requestStatusMapper.requestStatusToRequestStatusDTO(updateRequestStatus);
+        final String updateResolution = getUpdatedString(testRequest.getResolution());
+        RequestRequesterDTO testDTO = RequestRequesterDTO.builder()
+                .id(testRequest.getId())
+                .version(testRequest.getVersion())
+                .requestStatus(updateRequestStatusDTO)
+                .resolution(updateResolution)
+                .build();
+
+        mockMvc.perform(put(RequestController.MY_REQUESTS_PATH_ID, testRequest.getId())
+                        .accept(MediaType.APPLICATION_JSON)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(testDTO)))
+                .andExpect(status().isBadRequest());
     }
 
     @WithMockUser(username = BootstrapData.TEST_TECH_1)

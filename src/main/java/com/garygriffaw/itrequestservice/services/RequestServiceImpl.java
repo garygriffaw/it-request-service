@@ -211,9 +211,8 @@ public class RequestServiceImpl implements RequestService {
         User requester = userMapper.userUnsecureDTOToUser(requesterDTO.get());
 
         requestRepository.findByIdAndRequester(requestId, requester).ifPresentOrElse(foundRequest -> {
-            foundRequest.setTitle(requestDTO.getTitle());
-            foundRequest.setDescription(requestDTO.getDescription());
-            atomicReference.set(Optional.of(requestMapper.requestToRequestDTO(requestRepository.save(foundRequest))));
+            Request validatedRequest = getValidatedRequestUpdateByRequester(requestDTO, foundRequest);
+            atomicReference.set(Optional.of(requestMapper.requestToRequestDTO(requestRepository.save(validatedRequest))));
         }, () -> {
             atomicReference.set(Optional.empty());
         });
@@ -355,33 +354,54 @@ public class RequestServiceImpl implements RequestService {
         return "%" + value.trim() + "%";
     }
 
-    private Request getValidatedRequestUpdateByAssignedTo(RequestAssignedToDTO requestDTO, Request currentRequest) {
+    private Request getValidatedRequestUpdateByRequester(RequestRequesterDTO requestDTO, Request currentRequest) {
         RequestStatus newRequestStatus = getRequestStatus(requestDTO.getRequestStatus());
 
         if (!(newRequestStatus.getRequestStatusCode() == currentRequest.getRequestStatus().getRequestStatusCode() ||
-            newRequestStatus.getRequestStatusCode() == RequestStatusEnum.ASSIGNED ||
-            newRequestStatus.getRequestStatusCode() == RequestStatusEnum.IN_WORK ||
-            newRequestStatus.getRequestStatusCode() == RequestStatusEnum.COMPLETE ||
             newRequestStatus.getRequestStatusCode() == RequestStatusEnum.CANCELLED)) {
           throw new InvalidCombinationException("Can not change the status to " + newRequestStatus.getRequestStatusDisplay());
         }
 
-        if ((newRequestStatus.getRequestStatusCode() == RequestStatusEnum.COMPLETE ||
-             newRequestStatus.getRequestStatusCode() == RequestStatusEnum.CANCELLED) &&
-            (requestDTO.getResolution() == null ||
-             requestDTO.getResolution().trim().length() < 5)) {
-            throw new InvalidCombinationException("Resolution must have at least 5 characters when status is " + newRequestStatus.getRequestStatusDisplay());
+        validateCompletedRequestStatusValues(newRequestStatus, requestDTO.getResolution());
+
+        currentRequest.setTitle(requestDTO.getTitle());
+        currentRequest.setDescription(requestDTO.getDescription());
+        currentRequest.setRequestStatus(newRequestStatus);
+        currentRequest.setResolution(requestDTO.getResolution());
+        return currentRequest;
+    }
+
+    private Request getValidatedRequestUpdateByAssignedTo(RequestAssignedToDTO requestDTO, Request currentRequest) {
+        RequestStatus newRequestStatus = getRequestStatus(requestDTO.getRequestStatus());
+
+        if (!(newRequestStatus.getRequestStatusCode() == currentRequest.getRequestStatus().getRequestStatusCode() ||
+                newRequestStatus.getRequestStatusCode() == RequestStatusEnum.ASSIGNED ||
+                newRequestStatus.getRequestStatusCode() == RequestStatusEnum.IN_WORK ||
+                newRequestStatus.getRequestStatusCode() == RequestStatusEnum.COMPLETE ||
+                newRequestStatus.getRequestStatusCode() == RequestStatusEnum.CANCELLED)) {
+            throw new InvalidCombinationException("Can not change the status to " + newRequestStatus.getRequestStatusDisplay());
         }
 
-        if (!(newRequestStatus.getRequestStatusCode() == RequestStatusEnum.COMPLETE ||
-              newRequestStatus.getRequestStatusCode() == RequestStatusEnum.CANCELLED) &&
-            requestDTO.getResolution() != null &&
-            !requestDTO.getResolution().trim().equals("")) {
-            throw new InvalidCombinationException("Resolution must be empty when status is " + newRequestStatus.getRequestStatusDisplay());
-        }
+        validateCompletedRequestStatusValues(newRequestStatus, requestDTO.getResolution());
 
         currentRequest.setRequestStatus(newRequestStatus);
         currentRequest.setResolution(requestDTO.getResolution());
         return currentRequest;
+    }
+
+    private void validateCompletedRequestStatusValues(RequestStatus newRequestStatus, String resolution) {
+        if ((newRequestStatus.getRequestStatusCode() == RequestStatusEnum.COMPLETE ||
+                newRequestStatus.getRequestStatusCode() == RequestStatusEnum.CANCELLED) &&
+                (resolution == null ||
+                        resolution.trim().length() < 5)) {
+            throw new InvalidCombinationException("Resolution must have at least 5 characters when status is " + newRequestStatus.getRequestStatusDisplay());
+        }
+
+        if (!(newRequestStatus.getRequestStatusCode() == RequestStatusEnum.COMPLETE ||
+                newRequestStatus.getRequestStatusCode() == RequestStatusEnum.CANCELLED) &&
+                resolution != null &&
+                !resolution.trim().equals("")) {
+            throw new InvalidCombinationException("Resolution must be empty when status is " + newRequestStatus.getRequestStatusDisplay());
+        }
     }
 }

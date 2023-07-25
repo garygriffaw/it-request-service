@@ -260,10 +260,7 @@ class RequestControllerTest {
     @WithMockUser(username = "abc")
     @Test
     void testCreateNewRequest() throws Exception {
-        RequestRequesterDTO newRequest = RequestRequesterDTO.builder()
-                .title("New title")
-                .description("New description")
-                .build();
+        RequestRequesterDTO newRequest = getTestRequestRequesterDTO();
 
         RequestDTO testRequest = getTestRequestDTO();
 
@@ -290,7 +287,7 @@ class RequestControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(newRequest)))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.length()", is(4)))
+                .andExpect(jsonPath("$.length()", is(5)))
                 .andReturn();
 
         verify(requestService, times(0)).saveNewRequest(any(RequestRequesterDTO.class), any(String.class));
@@ -300,10 +297,7 @@ class RequestControllerTest {
     @WithMockUser(username = "abc")
     @Test
     void testCreateNewRequestForbidden() throws Exception {
-        RequestRequesterDTO newRequest = RequestRequesterDTO.builder()
-                .title("New title")
-                .description("New description")
-                .build();
+        RequestRequesterDTO newRequest = getTestRequestRequesterDTO();
 
         given(requestService.saveNewRequest(any(RequestRequesterDTO.class), any()))
                 .willReturn(Optional.empty());
@@ -484,6 +478,22 @@ class RequestControllerTest {
                 .andExpect(status().isForbidden());
 
         verify(requestService, times(0)).deleteById(any(Integer.class));
+    }
+
+    private RequestRequesterDTO getTestRequestRequesterDTO() {
+        RequestStatusDTO requestStatus = RequestStatusDTO.builder()
+                .id(1)
+                .requestStatusCode(RequestStatusEnum.CREATED.name())
+                .build();
+
+        return RequestRequesterDTO.builder()
+                .id(1)
+                .version(0)
+                .title("Test title")
+                .description("Test description")
+                .requestStatus(requestStatus)
+                .resolution("Test resolution")
+                .build();
     }
 
     private RequestDTO getTestRequestDTO() {
