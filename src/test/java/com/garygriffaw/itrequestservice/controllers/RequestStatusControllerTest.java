@@ -62,4 +62,36 @@ class RequestStatusControllerTest {
 
         verify(requestStatusService, times(1)).listRequestStatuses();
     }
+
+    @WithMockUser(username = "abc")
+    @Test
+    void testListRequestStatusesForRequester() throws Exception {
+        List<RequestStatusDTO> testList = new ArrayList<>();
+
+        given(requestStatusService.listRequestStatusesForRequester())
+                .willReturn(testList);
+
+        mockMvc.perform(get(RequestStatusController.REQUEST_STATUS_FOR_REQUESTER_PATH)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON));
+
+        verify(requestStatusService, times(1)).listRequestStatusesForRequester();
+    }
+
+    @WithMockUser(username = "abc")
+    @Test
+    void testListRequestStatusesForAssignedTo() throws Exception {
+        List<RequestStatusDTO> testList = new ArrayList<>();
+
+        given(requestStatusService.listRequestStatusesForAssignedTo())
+                .willReturn(testList);
+
+        mockMvc.perform(get(RequestStatusController.REQUEST_STATUS_FOR_ASSIGNED_TO_PATH)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON));
+
+        verify(requestStatusService, times(1)).listRequestStatusesForAssignedTo();
+    }
 }

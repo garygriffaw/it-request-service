@@ -3,6 +3,7 @@ package com.garygriffaw.itrequestservice.controllers;
 import com.garygriffaw.itrequestservice.exceptions.ForbiddenException;
 import com.garygriffaw.itrequestservice.exceptions.NotFoundException;
 import com.garygriffaw.itrequestservice.model.RequestAssignedToDTO;
+import com.garygriffaw.itrequestservice.model.RequestCreateDTO;
 import com.garygriffaw.itrequestservice.model.RequestDTO;
 import com.garygriffaw.itrequestservice.model.RequestRequesterDTO;
 import com.garygriffaw.itrequestservice.services.RequestService;
@@ -85,7 +86,7 @@ public class RequestController {
     }
 
     @PostMapping(REQUESTS_PATH)
-    public ResponseEntity saveNewRequest(@Validated @RequestBody RequestRequesterDTO requestDTO, Authentication authentication) {
+    public ResponseEntity saveNewRequest(@Validated @RequestBody RequestCreateDTO requestDTO, Authentication authentication) {
         RequestDTO savedRequest = requestService.saveNewRequest(requestDTO, authentication.getName())
                 .orElseThrow(ForbiddenException::new);
 

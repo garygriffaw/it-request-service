@@ -25,6 +25,24 @@ public class RequestStatusServiceImpl implements RequestStatusService {
     }
 
     @Override
+    public List<RequestStatusDTO> listRequestStatusesForRequester() {
+        List<RequestStatus> requestStatuses = requestStatusRepository.findAll();
+
+        return requestStatuses.stream()
+                .filter(requestStatus -> requestStatus.getRequestStatusCode().isValidRequestStatusForRequester)
+                .map(requestStatusMapper::requestStatusToRequestStatusDTO).toList();
+    }
+
+    @Override
+    public List<RequestStatusDTO> listRequestStatusesForAssignedTo() {
+        List<RequestStatus> requestStatuses = requestStatusRepository.findAll();
+
+        return requestStatuses.stream()
+                .filter(requestStatus -> requestStatus.getRequestStatusCode().isValidRequestStatusForAssignedTo)
+                .map(requestStatusMapper::requestStatusToRequestStatusDTO).toList();
+    }
+
+    @Override
     public Optional<RequestStatusDTO> getRequestStatusByRequestStatus(RequestStatusEnum requestStatus) {
         return Optional.ofNullable(requestStatusMapper.requestStatusToRequestStatusDTO(requestStatusRepository.findByRequestStatusCode(requestStatus)
                 .orElse(null)));

@@ -1,6 +1,7 @@
 package com.garygriffaw.itrequestservice.services;
 
 import com.garygriffaw.itrequestservice.model.RequestAssignedToDTO;
+import com.garygriffaw.itrequestservice.model.RequestCreateDTO;
 import com.garygriffaw.itrequestservice.model.RequestDTO;
 import com.garygriffaw.itrequestservice.model.RequestRequesterDTO;
 import org.springframework.data.domain.Page;
@@ -26,7 +27,7 @@ public interface RequestService {
 
     Optional<RequestDTO> getRequestByIdAndAssignedTo(Integer requestId, String assignedToUsername);
 
-    Optional<RequestDTO> saveNewRequest(RequestRequesterDTO requestDTO, String requesterUsername);
+    Optional<RequestDTO> saveNewRequest(RequestCreateDTO requestDTO, String requesterUsername);
 
     Optional<RequestDTO> updateRequestById(Integer requestId, RequestDTO requestDTO);
 

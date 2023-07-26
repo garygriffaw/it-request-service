@@ -152,7 +152,7 @@ public class RequestServiceImpl implements RequestService {
     }
 
     @Override
-    public Optional<RequestDTO> saveNewRequest(RequestRequesterDTO requestRequesterDTO, String requesterUsername) {
+    public Optional<RequestDTO> saveNewRequest(RequestCreateDTO requestRequesterDTO, String requesterUsername) {
         Optional<UserUnsecureDTO> requesterDTO = userService.getUserByUsernameUnsec(requesterUsername);
 
         if (requesterDTO.isEmpty()) {
@@ -358,7 +358,7 @@ public class RequestServiceImpl implements RequestService {
         RequestStatus newRequestStatus = getRequestStatus(requestDTO.getRequestStatus());
 
         if (!(newRequestStatus.getRequestStatusCode() == currentRequest.getRequestStatus().getRequestStatusCode() ||
-            newRequestStatus.getRequestStatusCode() == RequestStatusEnum.CANCELLED)) {
+            newRequestStatus.getRequestStatusCode().isValidRequestStatusForRequester)) {
           throw new InvalidCombinationException("Can not change the status to " + newRequestStatus.getRequestStatusDisplay());
         }
 
@@ -375,10 +375,7 @@ public class RequestServiceImpl implements RequestService {
         RequestStatus newRequestStatus = getRequestStatus(requestDTO.getRequestStatus());
 
         if (!(newRequestStatus.getRequestStatusCode() == currentRequest.getRequestStatus().getRequestStatusCode() ||
-                newRequestStatus.getRequestStatusCode() == RequestStatusEnum.ASSIGNED ||
-                newRequestStatus.getRequestStatusCode() == RequestStatusEnum.IN_WORK ||
-                newRequestStatus.getRequestStatusCode() == RequestStatusEnum.COMPLETE ||
-                newRequestStatus.getRequestStatusCode() == RequestStatusEnum.CANCELLED)) {
+                newRequestStatus.getRequestStatusCode().isValidRequestStatusForAssignedTo)) {
             throw new InvalidCombinationException("Can not change the status to " + newRequestStatus.getRequestStatusDisplay());
         }
 

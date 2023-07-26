@@ -40,4 +40,24 @@ public class RequestStatusControllerIT {
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.length()", is(5)));
     }
+
+    @WithMockUser(username = "abc")
+    @Test
+    void testListRequestStatusesForRequester() throws Exception {
+        mockMvc.perform(get(RequestStatusController.REQUEST_STATUS_FOR_REQUESTER_PATH)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.length()", is(1)));
+    }
+
+    @WithMockUser(username = "abc")
+    @Test
+    void testListRequestStatusesForAssignedTo() throws Exception {
+        mockMvc.perform(get(RequestStatusController.REQUEST_STATUS_FOR_ASSIGNED_TO_PATH)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.length()", is(4)));
+    }
 }

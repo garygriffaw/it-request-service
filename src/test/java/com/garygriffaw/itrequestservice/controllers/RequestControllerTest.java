@@ -264,7 +264,7 @@ class RequestControllerTest {
 
         RequestDTO testRequest = getTestRequestDTO();
 
-        given(requestService.saveNewRequest(any(RequestRequesterDTO.class), any()))
+        given(requestService.saveNewRequest(any(RequestCreateDTO.class), any()))
                 .willReturn(Optional.of(testRequest));
 
         mockMvc.perform(post(RequestController.REQUESTS_PATH)
@@ -274,7 +274,7 @@ class RequestControllerTest {
                 .andExpect(status().isCreated())
                 .andExpect(header().exists("Location"));
 
-        verify(requestService, times(1)).saveNewRequest(any(RequestRequesterDTO.class), any(String.class));
+        verify(requestService, times(1)).saveNewRequest(any(RequestCreateDTO.class), any(String.class));
     }
 
     @WithMockUser(username = "abc")
@@ -287,10 +287,10 @@ class RequestControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(newRequest)))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.length()", is(5)))
+                .andExpect(jsonPath("$.length()", is(4)))
                 .andReturn();
 
-        verify(requestService, times(0)).saveNewRequest(any(RequestRequesterDTO.class), any(String.class));
+        verify(requestService, times(0)).saveNewRequest(any(RequestCreateDTO.class), any(String.class));
         System.out.println(mvcResult.getResponse().getContentAsString());
     }
 
@@ -299,7 +299,7 @@ class RequestControllerTest {
     void testCreateNewRequestForbidden() throws Exception {
         RequestRequesterDTO newRequest = getTestRequestRequesterDTO();
 
-        given(requestService.saveNewRequest(any(RequestRequesterDTO.class), any()))
+        given(requestService.saveNewRequest(any(RequestCreateDTO.class), any()))
                 .willReturn(Optional.empty());
 
         mockMvc.perform(post(RequestController.REQUESTS_PATH)
@@ -308,7 +308,7 @@ class RequestControllerTest {
                         .content(objectMapper.writeValueAsString(newRequest)))
                 .andExpect(status().isForbidden());
 
-        verify(requestService, times(1)).saveNewRequest(any(RequestRequesterDTO.class), any(String.class));
+        verify(requestService, times(1)).saveNewRequest(any(RequestCreateDTO.class), any(String.class));
     }
 
     @WithMockUser(username = "abc", roles = "ADMIN")
