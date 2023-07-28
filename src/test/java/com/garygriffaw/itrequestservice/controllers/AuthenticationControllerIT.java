@@ -33,6 +33,8 @@ class AuthenticationControllerIT {
 
     private MockMvc mockMvc;
 
+    private final String VALID_PASSWORD = "a3gR!ojf";
+
     @BeforeEach
     void setUp() {
         mockMvc = MockMvcBuilders
@@ -50,7 +52,7 @@ class AuthenticationControllerIT {
                 .firstname("First")
                 .lastname("Last")
                 .email("aaa@aaa.com")
-                .password("abcd")
+                .password(VALID_PASSWORD)
                 .build();
 
         mockMvc.perform(post(AuthenticationController.REGISTER)
@@ -69,7 +71,7 @@ class AuthenticationControllerIT {
                 .firstname("First")
                 .lastname("Last")
                 .email("aaa@aaa.com")
-                .password("abcd")
+                .password(VALID_PASSWORD)
                 .build();
 
         mockMvc.perform(post(AuthenticationController.REGISTER)
@@ -83,7 +85,7 @@ class AuthenticationControllerIT {
                 .firstname("First2")
                 .lastname("Last2")
                 .email("aaa2@aaa.com")
-                .password("wxyz")
+                .password(VALID_PASSWORD + "a")
                 .build();
 
         mockMvc.perform(post(AuthenticationController.REGISTER)
@@ -102,7 +104,7 @@ class AuthenticationControllerIT {
                 .firstname("First")
                 .lastname("Last")
                 .email("aaa@aaa.com")
-                .password("abcd")
+                .password(VALID_PASSWORD)
                 .build();
 
         mockMvc.perform(post(AuthenticationController.REGISTER)
@@ -113,7 +115,7 @@ class AuthenticationControllerIT {
 
         UserAuthenticationDTO userAuthenticationDTO = UserAuthenticationDTO.builder()
                 .username("test1")
-                .password("abcd")
+                .password(VALID_PASSWORD)
                 .build();
 
         mockMvc.perform(post(AuthenticationController.AUTHENTICATE)
@@ -132,7 +134,7 @@ class AuthenticationControllerIT {
                 .firstname("First")
                 .lastname("Last")
                 .email("aaa@aaa.com")
-                .password("abcd")
+                .password(VALID_PASSWORD)
                 .build();
 
         mockMvc.perform(post(AuthenticationController.REGISTER)
@@ -143,7 +145,7 @@ class AuthenticationControllerIT {
 
         UserAuthenticationDTO userAuthenticationDTO = UserAuthenticationDTO.builder()
                 .username("test1")
-                .password("abcf")
+                .password(VALID_PASSWORD + "a")
                 .build();
 
         mockMvc.perform(post(AuthenticationController.AUTHENTICATE)
@@ -157,7 +159,7 @@ class AuthenticationControllerIT {
     void testAuthenticateWrongUsername() throws Exception {
         UserAuthenticationDTO userAuthenticationDTO = UserAuthenticationDTO.builder()
                 .username("test9999")
-                .password("abcd")
+                .password(VALID_PASSWORD)
                 .build();
 
         mockMvc.perform(post(AuthenticationController.AUTHENTICATE)

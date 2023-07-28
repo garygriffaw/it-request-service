@@ -1,5 +1,6 @@
 package com.garygriffaw.itrequestservice.model;
 
+import com.garygriffaw.itrequestservice.validation.ValidPassword;
 import jakarta.persistence.Column;
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
@@ -35,5 +36,6 @@ public class UserRegisterDTO {
             flags = Pattern.Flag.CASE_INSENSITIVE)
     private String email;
 
+    @ValidPassword
     private String password;
 }
